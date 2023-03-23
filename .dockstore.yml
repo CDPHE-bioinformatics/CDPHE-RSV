@@ -1,0 +1,5 @@
+version: 1.2
+workflows:
+  - name: RSV_illumina_pe_assembly
+    subclass: WDL
+    primaryDescriptorPath: /workflows/RSV_illumina_pe_assembly.wdl
