@@ -2,7 +2,7 @@ version 1.0
 
 import "../tasks/preprocess_tasks.wdl" as fastq_preprocess
 
-workflow RSV_assembly {
+workflow RSV_pe_assembly {
     input {
         String sample_name
         
