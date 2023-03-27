@@ -2,7 +2,7 @@ version 1.0
 
 task fastqc {
     meta {
-      description: "This task uses fastqc to evaluate the quality of reads in the fastq files. The output is an html file with various quality statistics, from which the task pulls the number of reads. Modified from Theiagen Genomics- public health viral genomics."
+      description: "This task uses fastqc to evaluate the quality of reads in the fastq files."
     }
 
     input {
@@ -71,5 +71,44 @@ task fastqc {
         preemptible: 0
         maxRetries: 0
         docker: "staphb/fastqc:0.11.9"
+    }
+}
+
+task seqyclean {
+    meta {
+        description: "This task uses seqyclean to remove containments and adapaters and then filters on min len and quality."
+    }
+    
+    input {
+        File adapters_and_contaminants
+        String sample_name
+        File fastq_R1
+        File fastq_R2
+        String docker = "staphb/seqyclean:1.10.09"
+    }
+    
+    command <<<
+        seqyclean -minlen 70 -qual 30 30 -gz -1 ~{fastq_R1} -2 ~{fastq_R2} -c ~{adapters_and_contaminants} -o ~{sample_name}_clean
+        
+        awk 'NR==2 {print $1}' ~{sample_name}_clean_SummaryStatistics.tsv | tee VERSION
+    >>>
+
+    output {
+        String seqyclean_version = read_string("VERSION")
+        String seqyclean_docker = "~{docker}"
+        File seqyclean_summary = "${sample_name}_clean_SummaryStatistics.tsv"
+
+        File fastq_R1_cleaned = "${sample_name}_clean_PE1.fastq.gz"
+        File fastq_R2_cleaned = "${sample_name}_clean_PE2.fastq.gz"
+    }
+
+    runtime {
+        cpu: 2
+        memory: "6 GiB"
+        disks: "local-disk 1 HDD"
+        bootDiskSizeGb: 10
+        preemptible: 0
+        maxRetries: 0
+        docker: "staphb/seqyclean:1.10.09"
     }
 }
