@@ -2,7 +2,7 @@ version 1.0
 
 workflow RSV_illumina_pe_assembly {
     input {
-        String sample_id
+        String sample_name
         File fastq_1
         File fastq_2
         File contaminants # includes adapters
@@ -23,7 +23,7 @@ workflow RSV_illumina_pe_assembly {
     call seqyclean {
         input:
             contaminants = contaminants,
-            sample_id = sample_id,
+            sample_name = sample_name,
             fastq_1 = fastq_1,
             fastq_2 = fastq_2
     }
@@ -44,7 +44,7 @@ workflow RSV_illumina_pe_assembly {
 
     call align_reads as align_reads_a {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             ref = rsv_a_genome,
             fastq_1 = seqyclean.cleaned_1,
             fastq_2 = seqyclean.cleaned_2
@@ -52,7 +52,7 @@ workflow RSV_illumina_pe_assembly {
 
     call align_reads as align_reads_b {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             ref = rsv_b_genome,
             fastq_1 = seqyclean.cleaned_1,
             fastq_2 = seqyclean.cleaned_2
@@ -60,21 +60,21 @@ workflow RSV_illumina_pe_assembly {
 
     call ivar_trim as ivar_trim_a {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             primers = rsv_a_primer,
             bam = align_reads_a.out_bam
     }
 
     call ivar_trim as ivar_trim_b {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             primers = rsv_b_primer,
             bam = align_reads_b.out_bam
     }
 
     call ivar_var as ivar_var_a {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             ref = rsv_a_genome,
             gff = rsv_a_gff,
             bam = ivar_trim_a.trimsort_bam
@@ -82,7 +82,7 @@ workflow RSV_illumina_pe_assembly {
 
     call ivar_var as ivar_var_b {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             ref = rsv_b_genome,
             gff = rsv_b_gff,
             bam = ivar_trim_b.trimsort_bam
@@ -90,52 +90,52 @@ workflow RSV_illumina_pe_assembly {
 
     call ivar_consensus as ivar_consensus_a {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             ref = rsv_a_genome,
             bam = ivar_trim_a.trimsort_bam
     }
 
     call ivar_consensus as ivar_consensus_b {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             ref = rsv_b_genome,
             bam = ivar_trim_b.trimsort_bam
     }
 
     call bam_stats as bam_stats_a {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             bam = ivar_trim_a.trimsort_bam
     }
 
     call bam_stats as bam_stats_b {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             bam = ivar_trim_b.trimsort_bam
     }
 
     call rename_fasta as rename_fasta_a {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             fasta = ivar_consensus_a.consensus_out
     }
 
     call rename_fasta as rename_fasta_b {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             fasta = ivar_consensus_b.consensus_out
     }
 
     call calc_percent_cvg as calc_percent_cvg_a {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             fasta = rename_fasta_a.renamed_consensus,
             preprocess_script = preprocess_script
     }
 
     call calc_percent_cvg as calc_percent_cvg_b {
         input:
-            sample_id = sample_id,
+            sample_name = sample_name,
             fasta = rename_fasta_b.renamed_consensus,
             preprocess_script = preprocess_script
     }
@@ -188,19 +188,19 @@ workflow RSV_illumina_pe_assembly {
 task seqyclean {
     input {
         File contaminants
-        String sample_id
+        String sample_name
         File fastq_1
         File fastq_2
     }
 
     command {
-        seqyclean -minlen 70 -qual 30 30 -gz -1 ${fastq_1} -2 ${fastq_2} -c ${contaminants} -o ${sample_id}_clean
+        seqyclean -minlen 70 -qual 30 30 -gz -1 ${fastq_1} -2 ${fastq_2} -c ${contaminants} -o ${sample_name}_clean
     }
 
     output {
-        File cleaned_1 = "${sample_id}_clean_PE1.fastq.gz"
-        File cleaned_2 = "${sample_id}_clean_PE2.fastq.gz"
-        File seqyclean_summary = "${sample_id}_clean_SummaryStatistics.tsv"
+        File cleaned_1 = "${sample_name}_clean_PE1.fastq.gz"
+        File cleaned_2 = "${sample_name}_clean_PE2.fastq.gz"
+        File seqyclean_summary = "${sample_name}_clean_SummaryStatistics.tsv"
     }
 
     runtime {
@@ -250,7 +250,7 @@ task align_reads {
         File fastq_1
         File fastq_2
         File ref
-        String sample_id
+        String sample_name
     }
 
     command {
@@ -258,13 +258,13 @@ task align_reads {
         bwa index -p reference.fasta -a is ${ref}
         bwa mem -t 2 reference.fasta ${fastq_1} ${fastq_2} | \
         samtools sort | \
-        samtools view -u -h -F 4 -o ./${sample_id}_aln.sorted.bam
-        samtools index ./${sample_id}_aln.sorted.bam
+        samtools view -u -h -F 4 -o ./${sample_name}_aln.sorted.bam
+        samtools index ./${sample_name}_aln.sorted.bam
     }
 
     output {
-        File out_bam = "${sample_id}_aln.sorted.bam"
-        File out_bamindex = "${sample_id}_aln.sorted.bam.bai"
+        File out_bam = "${sample_name}_aln.sorted.bam"
+        File out_bamindex = "${sample_name}_aln.sorted.bam.bai"
         String assembler_version = read_string("VERSION")
     }
 
@@ -283,19 +283,19 @@ task ivar_trim {
     input {
         File primers
         File bam
-        String sample_id
+        String sample_name
     }
 
     command {
-        ivar trim -e -i ${bam} -b ${primers} -p ${sample_id}_trim.bam
-        samtools sort ${sample_id}_trim.bam -o ${sample_id}_trim.sort.bam
-        samtools index ${sample_id}_trim.sort.bam
+        ivar trim -e -i ${bam} -b ${primers} -p ${sample_name}_trim.bam
+        samtools sort ${sample_name}_trim.bam -o ${sample_name}_trim.sort.bam
+        samtools index ${sample_name}_trim.sort.bam
     }
 
     output {
-        File trim_bam = "${sample_id}_trim.bam"
-        File trimsort_bam = "${sample_id}_trim.sort.bam"
-        File trimsort_bamindex = "${sample_id}_trim.sort.bam.bai"
+        File trim_bam = "${sample_name}_trim.bam"
+        File trimsort_bam = "${sample_name}_trim.sort.bam"
+        File trimsort_bamindex = "${sample_name}_trim.sort.bam.bai"
     }
 
     runtime {
@@ -311,7 +311,7 @@ task ivar_trim {
 
 task ivar_var {
     input {
-        String sample_id
+        String sample_name
         File ref
         File gff
         File bam
@@ -320,11 +320,11 @@ task ivar_var {
     command {
         samtools faidx ${ref}
         samtools mpileup -A -aa -d 600000 -B -Q 20 -q 20 -f ${ref} ${bam} | \
-        ivar variants -p ${sample_id}_variants -q 20 -t 0.6 -m 10 -r ${ref} -g ${gff}
+        ivar variants -p ${sample_name}_variants -q 20 -t 0.6 -m 10 -r ${ref} -g ${gff}
     }
 
     output {
-        File var_out = "${sample_id}_variants.tsv"
+        File var_out = "${sample_name}_variants.tsv"
     }
 
     runtime {
@@ -340,7 +340,7 @@ task ivar_var {
 
 task ivar_consensus {
     input {
-        String sample_id
+        String sample_name
         File ref
         File bam
     }
@@ -348,11 +348,11 @@ task ivar_consensus {
     command {
         samtools faidx ${ref}
         samtools mpileup -A -aa -d 600000 -B -Q 20 -q 20 -f ${ref} ${bam} | \
-        ivar consensus -p ${sample_id}_consensus -q 20 -t 0.6 -m 10
+        ivar consensus -p ${sample_name}_consensus -q 20 -t 0.6 -m 10
     }
 
     output {
-        File consensus_out = "${sample_id}_consensus.fa"
+        File consensus_out = "${sample_name}_consensus.fa"
     }
 
     runtime {
@@ -368,22 +368,22 @@ task ivar_consensus {
 
 task bam_stats {
     input {
-        String sample_id
+        String sample_name
         File bam
     }
 
     command {
-        samtools flagstat ${bam} > ${sample_id}_flagstat.txt
-        samtools stats ${bam} > ${sample_id}_stats.txt
-        samtools coverage -m -o ${sample_id}_coverage_hist.txt ${bam}
-        samtools coverage -o ${sample_id}_coverage.txt ${bam}
+        samtools flagstat ${bam} > ${sample_name}_flagstat.txt
+        samtools stats ${bam} > ${sample_name}_stats.txt
+        samtools coverage -m -o ${sample_name}_coverage_hist.txt ${bam}
+        samtools coverage -o ${sample_name}_coverage.txt ${bam}
     }
 
     output {
-        File flagstat_out = "${sample_id}_flagstat.txt"
-        File stats_out = "${sample_id}_stats.txt"
-        File covhist_out = "${sample_id}_coverage_hist.txt"
-        File cov_out = "${sample_id}_coverage.txt"
+        File flagstat_out = "${sample_name}_flagstat.txt"
+        File stats_out = "${sample_name}_stats.txt"
+        File covhist_out = "${sample_name}_coverage_hist.txt"
+        File cov_out = "${sample_name}_coverage.txt"
     }
 
     runtime {
@@ -399,16 +399,16 @@ task bam_stats {
 
 task rename_fasta {
     input {
-        String sample_id
+        String sample_name
         File fasta
     }
 
     command {
-        sed 's/>.*/>CO-CDPHE-~{sample_id}/' ~{fasta} > ~{sample_id}_consensus_renamed.fa
+        sed 's/>.*/>CO-CDPHE-~{sample_name}/' ~{fasta} > ~{sample_name}_consensus_renamed.fa
     }
 
     output {
-        File renamed_consensus = "${sample_id}_consensus_renamed.fa"
+        File renamed_consensus = "${sample_name}_consensus_renamed.fa"
     }
 
     runtime {
@@ -422,16 +422,16 @@ task rename_fasta {
 task calc_percent_cvg {
     input {
         File fasta
-        String sample_id
+        String sample_name
         File preprocess_script
     }
 
     command {
-        python ~{preprocess_script} --sample_id ~{sample_id} --fasta_file ~{fasta}
+        python ~{preprocess_script} --sample_name ~{sample_name} --fasta_file ~{fasta}
     }
 
     output {
-        File percent_cvg_csv = "${sample_id}_consensus_cvg_stats.csv"
+        File percent_cvg_csv = "${sample_name}_consensus_cvg_stats.csv"
     }
 
     runtime {
