@@ -6,6 +6,7 @@ task fastqc {
     }
 
     input {
+        String sample_name
         File fastq_R1
         File fastq_R2
         String docker = "staphb/fastqc:0.11.9"
