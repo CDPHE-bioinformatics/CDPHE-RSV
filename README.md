@@ -1,3 +1,7 @@
 # CDPHE-RSV
 
 This repository contains in development files for a pipeline to process RSV sequence data and summarize their data.
+
+## Limitations
+
+The current in dev version only takes paired-end (PE) reads.
