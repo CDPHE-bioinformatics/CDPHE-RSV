@@ -1,0 +1,14 @@
+{
+    "RSV_assembly.sample_name": "${this.sample_name}",
+    "RSV_assembly.rsv_subtype": "${this.subtype}",
+    "RSV_assembly.fastq_R1": "${this.fastq_1}",
+    "RSV_assembly.fastq_R2": "${this.fastq_2}",
+    "RSV_assembly.adapters_and_contaminants": "${workspace.adapters_and_contaminants}",
+    "RSV_assembly.rsv_a_primer_bed": "${workspace.rsv_a_primer}",
+    "RSV_assembly.rsv_b_primer_bed": "${workspace.rsv_b_primer}",
+    "RSV_assembly.rsv_a_genome": "${workspace.rsv_a_genome}",
+    "RSV_assembly.rsv_a_gff": "${workspace.rsv_a_gff}",
+    "RSV_assembly.rsv_b_genome": "${workspace.rsv_b_genome}",
+    "RSV_assembly.rsv_b_gff": "${workspace.rsv_b_gff}"
+  }
+  
