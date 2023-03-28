@@ -112,3 +112,67 @@ task seqyclean {
         docker: "staphb/seqyclean:1.10.09"
     }
 }
+
+task concat_preprocess_qc_metrics {
+    meta {
+        description: "This task creates a single csv file with all preprocess qc metrics."
+    }
+
+    input {
+        File python_script
+        String sample_name
+        String read_type
+
+        String fastqc_version
+        String fastqc_docker
+
+        Int total_reads_R1_raw
+        Int total_reads_R2_raw
+        String read_length_R1_raw 
+        String read_length_R2_raw 
+        String read_pairs_raw
+
+        Int total_reads_R1_cleaned
+        Int total_reads_R2_cleaned
+        String read_length_R1_cleaned
+        String read_length_R2_cleaned
+        String read_pairs_cleaned
+
+        String seqyclean_version
+        String seqyclean_docker
+    }
+
+    command <<<
+        python ~{python_script} \
+            --fastqc_version "~{fastqc_version}" \
+            --fastqc_docker "~{fastqc_docker}" \
+            --total_reads_R1_raw "~{total_reads_R1_raw}" \
+            --total_reads_R2_raw "~{total_reads_R2_raw}" \
+            --read_length_R1_raw "~{read_length_R1_raw}" \
+            --read_length_R2_raw "~{read_length_R2_raw}" \
+            --read_pairs_raw "~{read_pairs_raw}" \
+            --total_reads_R1_cleaned "~{total_reads_R1_cleaned}" \
+            --total_reads_R2_cleaned "~{total_reads_R2_cleaned}" \
+            --read_length_R1_cleaned "~{read_length_R1_cleaned}" \
+            --read_length_R2_cleaned "~{read_length_R2_cleaned}" \
+            --read_pairs_cleaned "~{read_pairs_cleaned}" \
+            --seqyclean_version "~{seqyclean_version}" \
+            --seqyclean_docker "~{seqyclean_docker}" \
+            --read_type "~{read_type}" \
+            --sample_name "~{sample_name}"
+    >>>
+
+    output {
+        File preprocess_qc_metrics = "~{sample_name}_preprocess_qc_metrics.csv"
+    }
+
+    runtime {
+        docker: "mchether/py3-bio:v2"
+        memory: "6G"
+        cpu: 2
+        disks: "local-disk 100 HDD"
+        preemptible: 0
+        maxRetries: 0
+        docker: "staphb/seqyclean:1.10.09"
+    }
+}
