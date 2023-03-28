@@ -64,7 +64,7 @@ task fastqc {
     }
 
     runtime {
-        docker: ~{docker}
+        docker: "~{docker}"
         cpu: 2
         memory: "1G"
         disks: "local-disk 10 HDD"
@@ -102,7 +102,7 @@ task seqyclean {
     }
 
     runtime {
-        docker: ~{docker}
+        docker: "~{docker}"
         cpu: 2
         memory: "6G"
         disks: "local-disk 10 HDD"
@@ -167,7 +167,7 @@ task concat_preprocess_qc_metrics {
     }
 
     runtime {
-        docker: ~{docker}
+        docker: "~{docker}"
         cpu: 2
         memory: "6G"
         disks: "local-disk 10 HDD"
