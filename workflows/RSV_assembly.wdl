@@ -10,9 +10,10 @@ workflow RSV_assembly {
         File fastq_R2
 
         File adapters_and_contaminants
-        File primer_bed
+        File rsv_a_primer_bed
         File rsv_a_genome
         File rsv_a_gff
+        File rsv_b_primer_bed
         File rsv_b_genome
         File rsv_b_gff
     }
