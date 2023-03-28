@@ -64,13 +64,12 @@ task fastqc {
     }
 
     runtime {
-        cpu: 1
-        memory: "2 GiB"
-        disks: "local-disk 1 HDD"
-        bootDiskSizeGb: 10
-        preemptible: 0
-        maxRetries: 0
-        docker: "staphb/fastqc:0.11.9"
+        docker: ~{docker}
+        cpu: 2
+        memory: "1G"
+        disks: "local-disk 10 HDD"
+        preemptible: 1
+        maxRetries: 1
     }
 }
 
@@ -103,13 +102,12 @@ task seqyclean {
     }
 
     runtime {
+        docker: ~{docker}
         cpu: 2
-        memory: "6 GiB"
-        disks: "local-disk 1 HDD"
-        bootDiskSizeGb: 10
-        preemptible: 0
-        maxRetries: 0
-        docker: "staphb/seqyclean:1.10.09"
+        memory: "6G"
+        disks: "local-disk 10 HDD"
+        preemptible: 1
+        maxRetries: 1
     }
 }
 
@@ -140,6 +138,8 @@ task concat_preprocess_qc_metrics {
 
         String seqyclean_version
         String seqyclean_docker
+
+        String docker = "mchether/py3-bio:v2"
     }
 
     command <<<
@@ -167,12 +167,11 @@ task concat_preprocess_qc_metrics {
     }
 
     runtime {
-        docker: "mchether/py3-bio:v2"
-        memory: "6G"
+        docker: ~{docker}
         cpu: 2
-        disks: "local-disk 100 HDD"
-        preemptible: 0
-        maxRetries: 0
-        docker: "staphb/seqyclean:1.10.09"
+        memory: "6G"
+        disks: "local-disk 10 HDD"
+        preemptible: 1
+        maxRetries: 1
     }
 }

@@ -5,13 +5,12 @@ import "../tasks/preprocess_tasks.wdl" as fastq_preprocess
 workflow RSV_assembly {
     input {
         String sample_name
+        String rsv_subtype
         File fastq_R1
         File fastq_R2
 
         File adapters_and_contaminants
         File primer_bed
-
-        String rsv_subtype
         File rsv_a_genome
         File rsv_a_gff
         File rsv_b_genome
