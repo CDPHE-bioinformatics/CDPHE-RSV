@@ -6,6 +6,7 @@ workflow RSV_assembly {
     input {
         String sample_name
         String rsv_subtype
+        String read_type # only accepts PE (paired-end)
         File fastq_R1
         File fastq_R2
 
@@ -16,6 +17,8 @@ workflow RSV_assembly {
         File rsv_b_primer_bed
         File rsv_b_genome
         File rsv_b_gff
+
+        File concat_preprocess_qc_metrics_py
     }
 
     call fastq_preprocess.fastqc as fastqc_raw {
@@ -40,6 +43,31 @@ workflow RSV_assembly {
             fastq_R2 = seqyclean.fastq_R2_cleaned
     }
 
+    call fastq_preprocess.concat_preprocess_qc_metrics as concat_preprocess_qc_metrics {
+        input:
+            python_script = concat_preprocess_qc_metrics_py,
+            sample_name = sample_name,
+            read_type = read_type,
+
+            fastqc_version = fastqc_raw.fastqc_version,
+            fastqc_docker = fastqc_raw.fastqc_docker,
+
+            total_reads_R1_raw = fastqc_raw.total_reads_R1,
+            total_reads_R2_raw = fastqc_raw.total_reads_R2,
+            read_length_R1_raw = fastqc_raw.read_length_R1,
+            read_length_R2_raw = fastqc_raw.read_length_R2,
+            read_pairs_raw = fastqc_raw.read_pairs,
+
+            total_reads_R1_cleaned = fastqc_cleaned.total_reads_R1,
+            total_reads_R2_cleaned = fastqc_cleaned.total_reads_R2,
+            read_length_R1_cleaned = fastqc_cleaned.read_length_R1,
+            read_length_R2_cleaned = fastqc_cleaned.read_length_R2,
+            read_pairs_cleaned = fastqc_cleaned.read_pairs,
+
+            seqyclean_version = seqyclean.seqyclean_version,
+            seqyclean_docker = seqyclean.seqyclean_docker
+    }
+
     output {
         # fastqc raw
         String fastqc_version = fastqc_raw.fastqc_version
@@ -59,5 +87,7 @@ workflow RSV_assembly {
         File fastqc1_cleaned_zip = fastqc_cleaned.fastqc1_zip
         File fastqc2_cleaned_html = fastqc_cleaned.fastqc2_html
         File fastqc2_cleaned_zip = fastqc_cleaned.fastqc2_zip
+
+        File preprocess_qc_metrics = concat_preprocess_qc_metrics.preprocess_qc_metrics
     }
 }
