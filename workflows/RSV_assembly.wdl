@@ -6,7 +6,7 @@ workflow RSV_assembly {
     input {
         String sample_name
         String rsv_subtype
-        String read_type # only accepts PE (paired-end)
+        String read_type # only accepts PE (paired-end); reserved for future use
         File fastq_R1
         File fastq_R2
 
