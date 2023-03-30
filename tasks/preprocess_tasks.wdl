@@ -28,3 +28,34 @@ task seqyclean {
         docker: "staphb/seqyclean:1.10.09"
     }
 }
+
+task fastqc {
+    input {
+        File fastq_1
+        File fastq_2
+    }
+
+    String fastq1_name = basename(basename(basename(fastq_1, ".gz"), ".fastq"), ".fq")
+    String fastq2_name = basename(basename(basename(fastq_2, ".gz"), ".fastq"), ".fq")
+
+    command {
+        fastqc --outdir $PWD ${fastq_1} ${fastq_2}
+    }
+
+    output {
+        File fastqc1_html = "${fastq1_name}_fastqc.html"
+        File fastqc1_zip = "${fastq1_name}_fastqc.zip"
+        File fastqc2_html = "${fastq2_name}_fastqc.html"
+        File fastqc2_zip = "${fastq2_name}_fastqc.zip"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "2 GiB"
+        disks: "local-disk 1 HDD"
+        bootDiskSizeGb: 10
+        preemptible: 0
+        maxRetries: 0
+        docker: "staphb/fastqc:0.11.9"
+    }
+}

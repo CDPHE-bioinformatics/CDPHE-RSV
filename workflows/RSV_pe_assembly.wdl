@@ -30,9 +30,20 @@ workflow RSV_pe_assembly {
             fastq_2 = fastq_2
     }
 
+    call preprocess_tasks.fastqc as fastqc_raw {
+        input:
+           fastq_1 = fastq_1,
+           fastq_2 = fastq_2
+    }
+
     output {
         File filtered_reads_1 = seqyclean.cleaned_1
         File filtered_reads_2 = seqyclean.cleaned_2
         File seqyclean_summary = seqyclean.seqyclean_summary
+
+        File fastqc_raw1_html = fastqc_raw.fastqc1_html
+        File fastqc_raw1_zip = fastqc_raw.fastqc1_zip
+        File fastqc_raw2_html = fastqc_raw.fastqc2_html
+        File fastqc_raw2_zip = fastqc_raw.fastqc2_zip
     }
 }
