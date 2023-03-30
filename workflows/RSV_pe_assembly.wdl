@@ -36,6 +36,12 @@ workflow RSV_pe_assembly {
            fastq_2 = fastq_2
     }
 
+    call preprocess_tasks.fastqc as fastqc_cleaned {
+        input:
+            fastq_1 = seqyclean.cleaned_1,
+            fastq_2 = seqyclean.cleaned_2
+    }
+
     output {
         File filtered_reads_1 = seqyclean.cleaned_1
         File filtered_reads_2 = seqyclean.cleaned_2
