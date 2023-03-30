@@ -1,6 +1,7 @@
 version 1.1
 
 import "../tasks/preprocess_tasks.wdl"
+import "../tasks/ivar_tasks.wdl"
 
 workflow RSV_pe_assembly {
     input {
@@ -50,6 +51,13 @@ workflow RSV_pe_assembly {
             fastq_2 = seqyclean.cleaned_2
     }
 
+    call ivar_tasks.ivar_trim as ivar_trim {
+        input:
+            sample_name = sample_name,
+            primers = primer_bed,
+            bam = align_reads.out_bam
+    }
+
     output {
         File filtered_reads_1 = seqyclean.cleaned_1
         File filtered_reads_2 = seqyclean.cleaned_2
@@ -64,5 +72,9 @@ workflow RSV_pe_assembly {
         File out_bamindex = align_reads.out_bamindex
 
         String assembler_version = align_reads.assembler_version
+
+        File trim_bam = ivar_trim.trim_bam
+        File trimsort_bam = ivar_trim.trimsort_bam
+        File trimsort_bamindex = ivar_trim.trimsort_bamindex
     }
 }
