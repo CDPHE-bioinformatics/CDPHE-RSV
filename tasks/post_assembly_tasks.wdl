@@ -15,22 +15,20 @@ task bam_stats {
     >>>
 
     output {
-
-        File flagstat_out  = "${sample_name}_flagstat.txt"
-        File stats_out  = "${sample_name}_stats.txt"
-        File covhist_out  = "${sample_name}_coverage_hist.txt"
-        File cov_out  = "${sample_name}_coverage.txt"
-
+        File flagstat_out = "${sample_name}_flagstat.txt"
+        File stats_out = "${sample_name}_stats.txt"
+        File covhist_out = "${sample_name}_coverage_hist.txt"
+        File cov_out = "${sample_name}_coverage.txt"
     }
 
     runtime {
-        cpu:    2
-        memory:    "8 GiB"
-        disks:    "local-disk 1 HDD"
-        bootDiskSizeGb:    10
-        preemptible:    0
-        maxRetries:    0
-        docker:    "staphb/samtools:1.16"
+        cpu: 2
+        memory: "8 GiB"
+        disks: "local-disk 1 HDD"
+        bootDiskSizeGb: 10
+        preemptible: 0
+        maxRetries: 0
+        docker: "staphb/samtools:1.16"
     }
 }
 
@@ -45,13 +43,38 @@ task rename_fasta {
     >>>
 
     output {
-        File renamed_consensus  = "${sample_name}_consensus_renamed.fa"
+        File renamed_consensus = "${sample_name}_consensus_renamed.fa"
     }
 
     runtime {
         docker: "theiagen/utility:1.0"
         memory: "1 GB"
         cpu: 1
+        disks: "local-disk 10 SSD"
+    }
+}
+
+task calc_percent_cvg {
+    input {
+        File fasta
+        String sample_name
+        File calc_percent_coverage_py
+    }
+
+    command {
+        python ~{calc_percent_coverage_py} \
+            --sample_name ~{sample_name} \
+            --fasta_file ~{fasta}
+    }
+
+    output {
+        File percent_cvg_csv = "${sample_name}_consensus_cvg_stats.csv"
+    }
+
+    runtime {
+        docker: "mchether/py3-bio:v1"
+        memory: "1 GB"
+        cpu: 4
         disks: "local-disk 10 SSD"
     }
 }

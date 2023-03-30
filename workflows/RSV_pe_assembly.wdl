@@ -18,6 +18,8 @@ workflow RSV_pe_assembly {
         File rsv_b_primer_bed
         File rsv_b_genome
         File rsv_b_gff
+
+        File calc_percent_coverage_py
     }
 
     File primer_bed = if rsv_subtype == "A" then rsv_a_primer_bed else rsv_b_primer_bed
@@ -87,6 +89,13 @@ workflow RSV_pe_assembly {
             fasta = ivar_consensus.consensus_out
     }
 
+    call post_assembly_tasks.calc_percent_cvg as calc_percent_cvg {
+        input:
+            sample_name = sample_name,
+            fasta = rename_fasta.renamed_consensus,
+            calc_percent_coverage_py = calc_percent_coverage_py
+    }
+
     output {
         File filtered_reads_1 = seqyclean.cleaned_1
         File filtered_reads_2 = seqyclean.cleaned_2
@@ -115,5 +124,7 @@ workflow RSV_pe_assembly {
         File cov_out = bam_stats.cov_out
 
         File renamed_consensus = rename_fasta.renamed_consensus
+
+        File percent_cvg_csv = calc_percent_cvg.percent_cvg_csv
     }
 }
