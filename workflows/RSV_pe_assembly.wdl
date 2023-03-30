@@ -66,6 +66,13 @@ workflow RSV_pe_assembly {
             bam = ivar_trim.trimsort_bam
     }
 
+    call ivar_tasks.ivar_consensus as ivar_consensus {
+        input:
+            sample_name = sample_name,
+            ref = ref_genome,
+            bam = ivar_trim.trimsort_bam
+    }
+
     output {
         File filtered_reads_1 = seqyclean.cleaned_1
         File filtered_reads_2 = seqyclean.cleaned_2
@@ -85,5 +92,7 @@ workflow RSV_pe_assembly {
         File trimsort_bamindex = ivar_trim.trimsort_bamindex
 
         File variants = ivar_var.var_out
+
+        File consensus = ivar_consensus.consensus_out
     }
 }

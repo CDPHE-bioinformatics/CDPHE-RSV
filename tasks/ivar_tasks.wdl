@@ -58,3 +58,31 @@ task ivar_var {
         docker: "andersenlabapps/ivar:1.3.1"
     }
 }
+
+task ivar_consensus {
+    input {
+        String sample_name
+        File ref
+        File bam
+    }
+
+    command {
+        samtools faidx ${ref}
+        samtools mpileup -A -aa -d 600000 -B -Q 20 -q 20 -f ${ref} ${bam} | \
+        ivar consensus -p ${sample_name}_consensus -q 20 -t 0.6 -m 10
+    }
+
+    output {
+        File consensus_out = "${sample_name}_consensus.fa"
+    }
+
+    runtime {
+        cpu: 2
+        memory: "8 GiB"
+        disks: "local-disk 1 HDD"
+        bootDiskSizeGb: 10
+        preemptible: 0
+        maxRetries: 0
+        docker: "andersenlabapps/ivar:1.3.1"
+    }
+}
