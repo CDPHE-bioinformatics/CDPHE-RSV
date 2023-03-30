@@ -58,6 +58,14 @@ workflow RSV_pe_assembly {
             bam = align_reads.out_bam
     }
 
+    call ivar_tasks.ivar_var as ivar_var {
+        input:
+            sample_name = sample_name,
+            ref = ref_genome,
+            gff = ref_gff,
+            bam = ivar_trim.trimsort_bam
+    }
+
     output {
         File filtered_reads_1 = seqyclean.cleaned_1
         File filtered_reads_2 = seqyclean.cleaned_2
@@ -70,11 +78,12 @@ workflow RSV_pe_assembly {
 
         File out_bam = align_reads.out_bam
         File out_bamindex = align_reads.out_bamindex
-
         String assembler_version = align_reads.assembler_version
 
         File trim_bam = ivar_trim.trim_bam
         File trimsort_bam = ivar_trim.trimsort_bam
         File trimsort_bamindex = ivar_trim.trimsort_bamindex
+
+        File variants = ivar_var.var_out
     }
 }
