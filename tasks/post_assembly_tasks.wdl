@@ -33,3 +33,25 @@ task bam_stats {
         docker:    "staphb/samtools:1.16"
     }
 }
+
+task rename_fasta {
+    input {
+        String sample_name
+        File fasta
+    }
+
+    command <<<
+        sed 's/>.*/>CO-CDPHE-~{sample_name}/' ~{fasta} > ~{sample_name}_consensus_renamed.fa
+    >>>
+
+    output {
+        File renamed_consensus  = "${sample_name}_consensus_renamed.fa"
+    }
+
+    runtime {
+        docker: "theiagen/utility:1.0"
+        memory: "1 GB"
+        cpu: 1
+        disks: "local-disk 10 SSD"
+    }
+}

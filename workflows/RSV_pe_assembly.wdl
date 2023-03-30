@@ -81,6 +81,12 @@ workflow RSV_pe_assembly {
             bai = ivar_trim.trimsort_bamindex
     }
 
+    call post_assembly_tasks.rename_fasta as rename_fasta {
+        input:
+            sample_name = sample_name,
+            fasta = ivar_consensus.consensus_out
+    }
+
     output {
         File filtered_reads_1 = seqyclean.cleaned_1
         File filtered_reads_2 = seqyclean.cleaned_2
@@ -107,5 +113,7 @@ workflow RSV_pe_assembly {
         File stats_out = bam_stats.stats_out
         File covhist_out = bam_stats.covhist_out
         File cov_out = bam_stats.cov_out
+
+        File renamed_consensus = rename_fasta.renamed_consensus
     }
 }
