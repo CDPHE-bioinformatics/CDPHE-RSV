@@ -1,4 +1,4 @@
-version 1.1
+version 1.0
 
 import "../tasks/preprocess_tasks.wdl"
 import "../tasks/ivar_tasks.wdl"
