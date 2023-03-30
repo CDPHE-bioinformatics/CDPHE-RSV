@@ -2,6 +2,7 @@ version 1.1
 
 import "../tasks/preprocess_tasks.wdl"
 import "../tasks/ivar_tasks.wdl"
+import "../tasks/post_assembly_tasks.wdl"
 
 workflow RSV_pe_assembly {
     input {
@@ -73,6 +74,13 @@ workflow RSV_pe_assembly {
             bam = ivar_trim.trimsort_bam
     }
 
+    call post_assembly_tasks.bam_stats as bam_stats {
+        input:
+            sample_name = sample_name,
+            bam = ivar_trim.trimsort_bam,
+            bai = ivar_trim.trimsort_bamindex
+    }
+
     output {
         File filtered_reads_1 = seqyclean.cleaned_1
         File filtered_reads_2 = seqyclean.cleaned_2
@@ -94,5 +102,10 @@ workflow RSV_pe_assembly {
         File variants = ivar_var.var_out
 
         File consensus = ivar_consensus.consensus_out
+
+        File flagstat_out = bam_stats.flagstat_out
+        File stats_out = bam_stats.stats_out
+        File covhist_out = bam_stats.covhist_out
+        File cov_out = bam_stats.cov_out
     }
 }
