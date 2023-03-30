@@ -59,3 +59,38 @@ task fastqc {
         docker: "staphb/fastqc:0.11.9"
     }
 }
+
+task align_reads {
+    input {
+        File fastq_1
+        File fastq_2
+        File ref
+        String sample_name
+    }
+
+    command {
+        echo bwa 0.7.17-r1188 > VERSION
+        
+        bwa index -p reference.fasta -a is ${ref}
+        bwa mem -t 2 reference.fasta ${fastq_1} ${fastq_2} | \
+        samtools sort | \
+        samtools view -u -h -F 4 -o ./${sample_name}_aln.sorted.bam
+        samtools index ./${sample_name}_aln.sorted.bam
+    }
+
+    output {
+        File out_bam = "${sample_name}_aln.sorted.bam"
+        File out_bamindex = "${sample_name}_aln.sorted.bam.bai"
+        String assembler_version = read_string("VERSION")
+    }
+
+    runtime {
+        cpu:    2
+        memory:    "12 GiB"
+        disks:    "local-disk 1 HDD"
+        bootDiskSizeGb:    10
+        preemptible:    0
+        maxRetries:    0
+        docker:    "broadinstitute/viral-core:latest"
+    }
+}

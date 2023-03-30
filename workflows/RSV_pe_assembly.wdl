@@ -42,6 +42,14 @@ workflow RSV_pe_assembly {
             fastq_2 = seqyclean.cleaned_2
     }
 
+    call preprocess_tasks.align_reads as align_reads {
+        input:
+            sample_name = sample_name,
+            ref = ref_genome,
+            fastq_1 = seqyclean.cleaned_1,
+            fastq_2 = seqyclean.cleaned_2
+    }
+
     output {
         File filtered_reads_1 = seqyclean.cleaned_1
         File filtered_reads_2 = seqyclean.cleaned_2
@@ -51,5 +59,10 @@ workflow RSV_pe_assembly {
         File fastqc_raw1_zip = fastqc_raw.fastqc1_zip
         File fastqc_raw2_html = fastqc_raw.fastqc2_html
         File fastqc_raw2_zip = fastqc_raw.fastqc2_zip
+
+        File out_bam = align_reads.out_bam
+        File out_bamindex = align_reads.out_bamindex
+
+        String assembler_version = align_reads.assembler_version
     }
 }
