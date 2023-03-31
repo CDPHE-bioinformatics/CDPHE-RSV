@@ -1,0 +1,19 @@
+{
+    "RSV_pe_transfer.out_dir": "${this.out_dir}",
+    "RSV_pe_transfer.filtered_reads_1": "${this.filtered_reads_1}",
+    "RSV_pe_transfer.filtered_reads_2": "${this.filtered_reads_2}",
+    "RSV_pe_transfer.seqyclean_summary": "${this.seqyclean_summary}",
+    "RSV_pe_transfer.fastqc_raw1_html": "${this.fastqc_raw1_html}",
+    "RSV_pe_transfer.fastqc_raw1_zip": "${this.fastqc_raw1_zip}",
+    "RSV_pe_transfer.fastqc_raw2_html": "${this.fastqc_raw2_html}",
+    "RSV_pe_transfer.fastqc_raw2_zip": "${this.fastqc_raw2_zip}",
+    "RSV_pe_transfer.trimsort_bam": "${this.trimsort_bam}",
+    "RSV_pe_transfer.trimsort_bamindex": "${this.trimsort_bamindex}",
+    "RSV_pe_transfer.variants": "${this.variants}",
+    "RSV_pe_transfer.consensus": "${this.consensus}",
+    "RSV_pe_transfer.flagstat_out": "${this.flagstat_out}",
+    "RSV_pe_transfer.stats_out": "${this.stats_out}",
+    "RSV_pe_transfer.covhist_out": "${this.covhist_out}",
+    "RSV_pe_transfer.cov_out": "${this.cov_out}",
+    "RSV_pe_transfer.renamed_consensus": "${this.renamed_consensus}"
+}
