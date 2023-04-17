@@ -1,9 +1,9 @@
 version 1.0
 
-import "../tasks/summary_task.wdl" as summary 
-import "../tasks/transfer_tasks.wdl" as transfer
+import "../tasks/summary_tasks.wdl" as summary_tasks
+import "../tasks/transfer_tasks.wdl" as transfer_tasks
 
-workflow RSV_pe_summary {
+workflow RSV_illumina_pe_summary {
     input {
         Array[String] sample_name
         Array[String] project_name_array
@@ -20,7 +20,7 @@ workflow RSV_pe_summary {
     String project_name = select_first(project_name_array)
     String analysis_date = select_first(analysis_date_array)
 
-    call summary.summary as summary {
+    call summary_tasks.summary as summary {
         input:
             sample_name = sample_name,
             preprocess_qc_metrics = preprocess_qc_metrics,
@@ -31,7 +31,7 @@ workflow RSV_pe_summary {
             analysis_date = analysis_date
     }
 
-    call transfer.transfer_assembly_summary_wdl as summary_transfer {
+    call transfer_tasks.transfer_assembly_summary_wdl as summary_transfer {
         input:
             sequencing_results_csv = summary.sequencing_results_csv,
             bucket_path = bucket_path

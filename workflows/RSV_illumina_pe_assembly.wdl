@@ -4,7 +4,7 @@ import "../tasks/preprocess_tasks.wdl"
 import "../tasks/ivar_tasks.wdl"
 import "../tasks/post_assembly_tasks.wdl"
 
-workflow RSV_pe_assembly {
+workflow RSV_illumina_pe_assembly {
     input {
         String sample_name
         File fastq_1
