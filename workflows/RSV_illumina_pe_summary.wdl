@@ -1,9 +1,9 @@
 version 1.0
 
-import "../tasks/summary_task.wdl" as summary 
+import "../tasks/summary_tasks.wdl" as summary 
 import "../tasks/transfer_tasks.wdl" as transfer
 
-workflow RSV_pe_summary {
+workflow RSV_illumina_pe_summary {
     input {
         Array[String] sample_name
         Array[String] project_name_array
