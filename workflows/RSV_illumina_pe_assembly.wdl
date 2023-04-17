@@ -11,7 +11,7 @@ workflow RSV_illumina_pe_assembly {
         File fastq_2
         File adapters_and_contaminants
 
-        String rsv_subtype
+        String organism # for subtype
         File rsv_a_primer_bed
         File rsv_a_genome
         File rsv_a_gff
@@ -22,9 +22,9 @@ workflow RSV_illumina_pe_assembly {
         File calc_percent_coverage_py
     }
 
-    File primer_bed = if rsv_subtype == "A" then rsv_a_primer_bed else rsv_b_primer_bed
-    File ref_genome = if rsv_subtype == "A" then rsv_a_genome else rsv_b_genome
-    File ref_gff = if rsv_subtype == "A" then rsv_a_gff else rsv_b_gff
+    File primer_bed = if organism == "RSV A" then rsv_a_primer_bed else rsv_b_primer_bed
+    File ref_genome = if organism == "RSV A" then rsv_a_genome else rsv_b_genome
+    File ref_gff = if organism == "RSV A" then rsv_a_gff else rsv_b_gff
 
     call preprocess_tasks.seqyclean as seqyclean {
         input:
