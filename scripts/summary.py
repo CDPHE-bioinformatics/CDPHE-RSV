@@ -1,168 +1,291 @@
 #! /usr/bin/env python
 
-#version = '1.0.0'
-
-# import python modules
-import pandas as pd
-
-import sys
 import argparse
-import subprocess
-
+import sys
+import pandas as pd
+from datetime import date
+import re
 
 #### FUNCTIONS #####
 def getOptions(args=sys.argv[1:]):
     parser = argparse.ArgumentParser(description="Parses command.")
-    parser.add_argument( "--sample_name")
-    parser.add_argument( "--preprocess_qc_metrics")
-    parser.add_argument( "--irma_typing")
-    parser.add_argument( "--irma_assembly_qc_metrics")
-    parser.add_argument( "--project_name")
-    parser.add_argument( "--analysis_date")
+    parser.add_argument('--sample_name_array')
+    parser.add_argument('--workbook_path')
+    parser.add_argument("--cov_out_files",  help= "txt file with list of bam file paths")
+    parser.add_argument('--percent_cvg_files', help = 'txt file with list of percent cvg file paths')
+    parser.add_argument('--assembler_version')
+    parser.add_argument('--pangolin_lineage_csv', help = 'csv output from pangolin')
+    parser.add_argument('--nextclade_clades_csv', help = 'csv output from nextclade parser')
+    parser.add_argument('--nextclade_variants_csv')
+    parser.add_argument('--nextclade_version')
+    parser.add_argument('--project_name')
+
     options = parser.parse_args(args)
     return options
 
 def create_list_from_write_lines_input(write_lines_input):
-
     list = []
     with open(write_lines_input, 'r') as f:
         for line in f:
             list.append(line.strip())
     return list
 
+def concat_cov_out(cov_out_file_list):
+     # initiate dataframe for concatenation
+    df = pd.DataFrame()
+    sample_name_list = []
+    samtools_mapped_reads_list = []
+    samtools_depth_list = []
+    samtools_baseq_list = []
+    samtools_mapq_list = []
 
-#### MAIN ####
-if __name__ == '__main__':
+    #loop through bam file stats files and pull data
+    for file in cov_out_file_list:
+        d = pd.read_csv(file, sep = '\t')
+        if re.search('barcode', file):
+            # for nanopore runs
+            sample_name = re.findall('/([0-9a-zA-Z_\-\.]+)_barcode', file)[0]
+        else:
+            # for illumina runs
+            sample_name = re.findall('/([0-9a-zA-Z_\-\.]+)_coverage.txt', file)[0]
 
-    options = getOptions()
-    sample_name_txt = options.sample_name
-    preprocess_qc_metrics_txt = options.preprocess_qc_metrics
-    irma_typing_txt = options.irma_typing
-    irma_qc_metrics_txt = options.irma_assembly_qc_metrics
-    project_name = options.project_name
-    analysis_date = options.analysis_date
+        # pull data from samtools output
+        num_reads = d.numreads[0]
+        depth = d.meandepth[0]
+        baseq = d.meanbaseq[0]
+        mapq = d.meanmapq[0]
 
-    sample_name_list = create_list_from_write_lines_input(write_lines_input = sample_name_txt)
-    preprocess_qc_metrics_list = create_list_from_write_lines_input(write_lines_input = preprocess_qc_metrics_txt)
-    irma_typing_list = create_list_from_write_lines_input(write_lines_input = irma_typing_txt)
-    irma_qc_metrics_list= create_list_from_write_lines_input(write_lines_input = irma_qc_metrics_txt)
+        sample_name_list.append(sample_name)
+        samtools_mapped_reads_list.append(num_reads)
+        samtools_depth_list.append(depth)
+        samtools_baseq_list.append(baseq)
+        samtools_mapq_list.append(mapq)
 
-    preprocess_qc_metrics_df_list = []
-    for preprocess_qc_metrics in preprocess_qc_metrics_list:
-        df = pd.read_csv(preprocess_qc_metrics, dtype = {'sample_name' : object})
-        preprocess_qc_metrics_df_list.append(df)
-    preprocess_qc_metrics_df = pd.concat(preprocess_qc_metrics_df_list).reset_index(drop = True)
-    preprocess_qc_metrics_df = preprocess_qc_metrics_df.set_index('sample_name')
+    df['sample_name'] = sample_name_list
+    df['mapped_reads'] = samtools_mapped_reads_list
+    df['mean_depth'] = samtools_depth_list
+    df['mean_base_quality'] = samtools_baseq_list
+    df['mean_map_quality'] = samtools_mapq_list
 
-    irma_typing_df_list = []
-    for irma_typing in irma_typing_list:
-        df = pd.read_csv(irma_typing, dtype = {'sample_name' : object})
-        irma_typing_df_list.append(df)
-    irma_typing_df = pd.concat(irma_typing_df_list).reset_index(drop=True)
-    irma_typing_df = irma_typing_df.set_index('sample_name')
+    return df
 
-    irma_qc_metrics_df_list = []
-    first_item = irma_qc_metrics_list[0]
-    if first_item != "" and len(irma_qc_metrics_list) != 1:
-        for irma_qc_metrics in irma_qc_metrics_list:
-            df = pd.read_csv(irma_qc_metrics, dtype = {'sample_name' : object})
-            irma_qc_metrics_df_list.append(df)
-        irma_qc_metrics_df = pd.concat(irma_qc_metrics_df_list).reset_index(drop = True)
-        irma_qc_metrics_df = irma_qc_metrics_df.set_index('sample_name')
-    else:
-        # somehow need to create a fake sample so that the headers get included:
-        adict = {'sample_name' : ['dummy'], 
-        'total_segments' : [0], 
-        'total_flu_mapped_reads':[0], 
-        'HA_per_cov' :[0],
-        'HA_mean_depth':[0], 
-        'HA_num_mapped_reads':[0], 
-        'HA_seq_len':[0], 
-        'HA_expected_len':[0],
-        'NA_per_cov':[0], 
-        'NA_mean_depth':[0], 
-        'NA_num_mapped_reads':[0], 
-        'NA_seq_len':[0],
-        'NA_expected_len':[0], 
-        'MP_per_cov':[0], 
-        'MP_mean_depth':[0], 
-        'MP_num_mapped_reads':[0],
-        'MP_seq_len':[0], 
-        'MP_expected_len':[0], 
-        'NP_per_cov':[0], 
-        'NP_mean_depth':[0],
-        'NP_num_mapped_reads':[0], 
-        'NP_seq_len':[0], 
-        'NP_expected_len':[0], 
-        'NS_per_cov':[0],
-        'NS_mean_depth':[0], 
-        'NS_num_mapped_reads':[0], 
-        'NS_seq_len':[0], 
-        'NS_expected_len':[0],
-        'PA_per_cov':[0], 
-        'PA_mean_depth':[0], 
-        'PA_num_mapped_reads':[0], 
-        'PA_seq_len':[0],
-        'PA_expected_len':[0], 
-        'PB1_per_cov':[0], 
-        'PB1_mean_depth':[0],
-        'PB1_num_mapped_reads':[0], 
-        'PB1_seq_len':[0], 
-        'PB1_expected_len':[0],
-        'PB2_per_cov':[0], 
-        'PB2_mean_depth':[0], 
-        'PB2_num_mapped_reads':[0], 
-        'PB2_seq_len':[0],
-        'PB2_expected_len':[0], 
-        'ivar_version':[0], 
-        'ivar_docker':[0], 
-        'ivar_min_depth':[0],
-        'ivar_min_freq':[0], 
-        'ivar_min_qual':[0]}
+def concat_percent_cvg(percent_cvg_file_list):
+    df_list = []
+    for file in percent_cvg_file_list:
+        d = pd.read_csv(file, dtype = {'sample_name' : object})
+        df_list.append(d)
 
-        irma_qc_metrics_df = pd.DataFrame(adict)
-        irma_qc_metrics_df = irma_qc_metrics_df.set_index('sample_name')
+    df = pd.concat(df_list)
 
+    return df
 
+def get_df_spike_mutations(variants_csv):
+    def get_sample_name(fasta_header):
+        sample_name = str(re.findall('CO-CDPHE-([0-9a-zA-Z_\-\.]+)', fasta_header)[0])
+        return sample_name 
+    
+    # read in variants file
+    variants = pd.read_csv(variants_csv, dtype = {'sample_name' : object})
+    variants = variants.drop(columns = 'fasta_header')
+
+    #### filter variants for spike protein varaints in rbd and pbcs #####
+    crit = variants.gene == 'S'
+    critRBD = (variants.codon_position >= 461) & (variants.codon_position <= 509)
+    critPBCS = (variants.codon_position >= 677) & (variants.codon_position <= 694)
+    crit732 = variants.codon_position == 732
+    crit452 = variants.codon_position == 452
+    crit253 = variants.codon_position == 253
+    crit13 = variants.codon_position == 13
+    crit145 = variants.codon_position == 145 # delta plus AY.4.2
+    crit222 = variants.codon_position == 222 # delta plus AY.4.2
+    critdel = variants.variant_name.str.contains('del') # mainly for 69/70 del
+
+    spike_variants_df = variants[crit & (critRBD | critPBCS | crit732 | critdel | crit452 | crit253 | crit13 | crit145 | crit222)]
+    spike_variants_df = spike_variants_df.reset_index(drop = True)
+
+    # generate a df of the sample and their spike variants
+    sample_name_list_variants = spike_variants_df.sample_name.unique().tolist()
+
+    df = pd.DataFrame()
+    sample_name_list = []
+    variant_name_list = []
+
+    seperator = '; '
+
+    for sample_name in sample_name_list_variants:
+        sample_name_list.append(sample_name)
+
+        crit = spike_variants_df.sample_name == sample_name
+        f = spike_variants_df[crit]
+        f = f.reset_index()
+
+        mutations = []
+        for row in range(f.shape[0]):
+            mutations.append(f.variant_name[row])
+        mutations_string = seperator.join(mutations)
+        variant_name_list.append(mutations_string)
+
+    df['sample_name'] = sample_name_list
+    df['spike_mutations'] = variant_name_list
+
+    return df
+
+def concat_results(sample_name_list, workbook_path, project_name, 
+                   assembler_version, pangolin_lineage_csv,
+                    nextclade_clades_csv, nextclade_version,
+                   cov_out_df, percent_cvg_df, spike_variants_df):
+
+    # set some functions for getting data formatted
+    def get_sample_name_from_fasta_header(fasta_header):
+        sample_name = str(re.findall('CO-CDPHE-([0-9a-zA-Z_\-\.]+)', fasta_header)[0])
+        return sample_name
+
+    def create_fasta_header(sample_name):
+        return 'CO-CDPHE-%s' % sample_name
+    
+    # create dataframe and fill with constant strings
+    df = pd.DataFrame()
+    df['sample_name'] = sample_name_list
+    df = df.set_index('sample_name')
+    df['analysis_date'] = str(date.today())
+    df['assembler_version'] = assembler_version
+    print(df)
+
+    # read in workbook
+    workbook = pd.read_csv(workbook_path, sep = '\t', dtype = {'sample_name' : object, 'hsn' : object})
+    workbook = workbook.set_index('sample_name')
+
+    # read in panlogin results
+    pangolin = pd.read_csv(pangolin_lineage_csv, dtype = {'taxon' : object})
+    pangolin = pangolin.rename(columns = {'lineage': 'pangolin_lineage',
+                                          'conflict' : 'pangoLEARN_conflict',
+                                          'taxon' : 'fasta_header',
+                                          'ambiguity_score' : 'pangolin_ambiguity_score',
+                                          'scorpio_call' : 'pangolin_scorpio_call',
+                                          'scorpio_support' : 'pangolin_scorpio_support',
+                                          'scorpio_conflict' : 'pangolin_scorpio_conflict',
+                                          'scorpio_notes' : 'pangolin_scorpio_notes',
+                                          'version' : 'pango_designation_version',
+                                          'scorpio_version' : 'pangolin_scorpio_version',
+                                          'constellation_version' : 'pangolin_constellation_version',
+                                          'is_designated' : 'pangolin_is_designated',
+                                          'qc_status' : 'pangolin_qc_status',
+                                          'qc_notes' : 'pangolin_qc_notes',
+                                          'note' : 'pangolin_note'})
+
+    sample_name = pangolin.apply(lambda x:get_sample_name_from_fasta_header(x.fasta_header), axis = 1)
+    pangolin.insert(value = sample_name, column = 'sample_name', loc = 0)
+    pangolin = pangolin.drop(columns = 'fasta_header')
+    pangolin = pangolin.set_index('sample_name')
+
+    # read in nextclade csv
+    nextclade = pd.read_csv(nextclade_clades_csv, dtype = {'sample_name' : object})
+    nextclade = nextclade.drop(columns = 'fasta_header')
+    nextclade['nextclade_version'] = nextclade_version
+    nextclade = nextclade.set_index('sample_name')
+
+    # set index on the samtools_df and percent_cvg_df and variants_df to prepare for joining
+    cov_out_df = cov_out_df.set_index('sample_name')
+    percent_cvg_df = percent_cvg_df.set_index('sample_name')
+    spike_variants_df = spike_variants_df.set_index('sample_name')
 
     # join
-    df = preprocess_qc_metrics_df.join(irma_typing_df, how = 'outer')
-    df = df.join(irma_qc_metrics_df,how = 'outer')
-    df = df.reset_index()
-    df['percent_flu_mapped_reads'] = round((df.total_flu_mapped_reads / df.read_pairs_cleaned) * 100 , 2)
-    df['project_name'] = project_name
+    j = df.join(workbook, how = 'left')
+    j = j.join(percent_cvg_df, how = 'left')
+    j = j.join(cov_out_df, how = 'left')
+    j = j.join(nextclade, how = 'left')
+    j = j.join(pangolin, how = 'left')
+    j = j.join(spike_variants_df, how = 'left')
+    j = j.reset_index()
+
+    # add fasta header
+    j['fasta_header'] = j.apply(lambda x:create_fasta_header(x.sample_name), axis=1)
+
+    # add assembled column and fill in failed assembles with 0% coveage
+    j.percent_coverage = j.percent_coverage.fillna(value = 0)
+
+    def get_assembly_pass(percent_coverage):
+        if percent_coverage == 0:
+            return False
+        if percent_coverage > 0:
+            return True      
+    j['assembly_pass'] = j.apply(lambda x:get_assembly_pass(x.percent_coverage), axis = 1)
 
     # order columns
-    col_order = ['sample_name', 'project_name', 'type', 'HA_subtype', 'NA_subtype',
-    'total_segments', 'total_flu_mapped_reads', 'percent_flu_mapped_reads',
-    'read_pairs_cleaned',
-    'HA_per_cov','HA_mean_depth', 'HA_num_mapped_reads', 'HA_seq_len', 'HA_expected_len',
-    'NA_per_cov', 'NA_mean_depth', 'NA_num_mapped_reads', 'NA_seq_len',
-    'NA_expected_len', 'MP_per_cov', 'MP_mean_depth', 'MP_num_mapped_reads',
-    'MP_seq_len', 'MP_expected_len', 'NP_per_cov', 'NP_mean_depth',
-    'NP_num_mapped_reads', 'NP_seq_len', 'NP_expected_len', 'NS_per_cov',
-    'NS_mean_depth', 'NS_num_mapped_reads', 'NS_seq_len', 'NS_expected_len',
-    'PA_per_cov', 'PA_mean_depth', 'PA_num_mapped_reads', 'PA_seq_len',
-    'PA_expected_len', 'PB1_per_cov', 'PB1_mean_depth',
-    'PB1_num_mapped_reads', 'PB1_seq_len', 'PB1_expected_len',
-    'PB2_per_cov', 'PB2_mean_depth', 'PB2_num_mapped_reads', 'PB2_seq_len',
-    'PB2_expected_len',
-    'read_type', 'total_read_diff', 'read_length_R1_raw',
-    'read_length_R2_raw', 'total_reads_R1_raw', 'total_reads_R2_raw',
-    'read_pairs_raw', 'read_length_R1_cleaned', 'read_length_R2_cleaned',
-    'total_reads_R1_cleaned', 'total_reads_R2_cleaned',
-    'read_pairs_cleaned', 
-    'fastqc_version', 'fastqc_docker',
-    'seqyclean_version', 'seqyclean_docker',
-    'irma_version', 'irma_docker', 'irma_module', 
-    'ivar_version', 'ivar_docker', 'ivar_min_depth', 'ivar_min_freq', 'ivar_min_qual']
+    columns = j.columns.tolist()
+    columns.sort()
+    primary_columns = ['hsn', 'sample_name', 'project_name', 'plate_name', 
+                       'run_name', 'analysis_date', 'run_date', 'assembly_pass', 
+                 'percent_coverage', 'nextclade', 'pangolin_lineage', 
+                 'expanded_lineage', 'spike_mutations']
+    for column in columns:
+         if column not in primary_columns:
+              primary_columns.append(column)
+    
+    j = j[primary_columns]
 
-    df = df[col_order]
-    df["analysis_date"] = analysis_date
-
-    #drop dummy sample if exists:
-    df = df[df.sample_name != "dummy"]
-
-    #outfile
     outfile = '%s_sequencing_results.csv' % project_name
-    df.to_csv(outfile, index = False)
+    j.to_csv(outfile, index = False)
+
+    return j
+
+def make_wgs_horizon_output (results_df, project_name):
+    results_df['report_to_epi'] = ''
+    results_df['Run_Date'] = str(date.today())
+
+    # rename columns 
+    results_df = results_df.rename(columns = {'hsn' : 'accession_id', 'pango_designation_version' : 'pangoLEARN_version'})
+
+    col_order = ['accession_id', 'percent_coverage', 'pangolin_lineage', 'pangolin_version',
+                 'report_to_epi', 'Run_Date', 'pangoLEARN_version']
+    
+    results_df = results_df[col_order]
+
+    outfile = "%s_wgs_horizon_report.csv" % project_name
+    results_df.to_csv(outfile, index = False)
+
+if __name__ == '__main__':
+    options = getOptions()
+
+    sample_name_array = options.sample_name_array
+    workbook_path = options.workbook_path
+    cov_out_files = options.cov_out_files
+    percent_cvg_files = options.percent_cvg_files
+    assembler_version = options.assembler_version
+    project_name = options.project_name
+
+    pangolin_lineage_csv = options.pangolin_lineage_csv
+
+    nextclade_clades_csv = options.nextclade_clades_csv
+    nextclade_variants_csv = options.nextclade_variants_csv
+    nextclade_version = options.nextclade_version
+
+    # create lists from the column table txt file input
+    sample_name_list = create_list_from_write_lines_input(write_lines_input=sample_name_array)
+    cov_out_file_list = create_list_from_write_lines_input(write_lines_input = cov_out_files)
+    percent_cvg_file_list = create_list_from_write_lines_input(write_lines_input=percent_cvg_files)
+    
+    # concat cov_out files and percent_cvg files
+    cov_out_df = concat_cov_out(cov_out_file_list=cov_out_file_list)
+    percent_cvg_df = concat_percent_cvg(percent_cvg_file_list=percent_cvg_file_list)
+
+    # get df of relavant spike mutations (inlcuding 69/70 del) from nextclade file
+    spike_variants_df = get_df_spike_mutations(variants_csv = nextclade_variants_csv)
+
+    # create results file
+    results_df = concat_results(sample_name_list = sample_name_list,
+                                workbook_path = workbook_path,
+                                project_name = project_name,
+                                assembler_version = assembler_version,
+                                pangolin_lineage_csv=pangolin_lineage_csv,
+                                nextclade_clades_csv=nextclade_clades_csv,
+                                nextclade_version=nextclade_version,
+                                cov_out_df=cov_out_df,
+                                percent_cvg_df=percent_cvg_df, 
+                                spike_variants_df = spike_variants_df)
+    
+    # create wgs horizon output
+    make_wgs_horizon_output(project_name = project_name,
+                            results_df=results_df)
+
+    print('DONE!')
