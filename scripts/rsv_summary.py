@@ -14,7 +14,6 @@ def getOptions(args=sys.argv[1:]):
     parser.add_argument("--cov_out_files",  help= "txt file with list of bam file paths")
     parser.add_argument('--percent_cvg_files', help = 'txt file with list of percent cvg file paths')
     parser.add_argument('--assembler_version')
-    parser.add_argument('--nextclade_version')
     parser.add_argument('--project_name')
 
     options = parser.parse_args(args)
@@ -129,7 +128,6 @@ def get_df_spike_mutations(variants_csv):
 
 def concat_results(sample_name_list, workbook_path, project_name, 
                    assembler_version,
-                    nextclade_version,
                    cov_out_df, percent_cvg_df, spike_variants_df):
 
     # set some functions for getting data formatted
@@ -154,7 +152,6 @@ def concat_results(sample_name_list, workbook_path, project_name,
 
     # read in nextclade csv
     nextclade = nextclade.drop(columns = 'fasta_header')
-    nextclade['nextclade_version'] = nextclade_version
     nextclade = nextclade.set_index('sample_name')
 
     # set index on the samtools_df and percent_cvg_df and variants_df to prepare for joining
@@ -227,8 +224,6 @@ if __name__ == '__main__':
     assembler_version = options.assembler_version
     project_name = options.project_name
 
-    nextclade_version = options.nextclade_version
-
     # create lists from the column table txt file input
     sample_name_list = create_list_from_write_lines_input(write_lines_input=sample_name_array)
     cov_out_file_list = create_list_from_write_lines_input(write_lines_input = cov_out_files)
@@ -243,7 +238,6 @@ if __name__ == '__main__':
                                 workbook_path = workbook_path,
                                 project_name = project_name,
                                 assembler_version = assembler_version,
-                                nextclade_version=nextclade_version,
                                 cov_out_df=cov_out_df,
                                 percent_cvg_df=percent_cvg_df, 
                                 spike_variants_df = spike_variants_df)
