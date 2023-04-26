@@ -14,7 +14,6 @@ def getOptions(args=sys.argv[1:]):
     parser.add_argument("--cov_out_files",  help= "txt file with list of bam file paths")
     parser.add_argument('--percent_cvg_files', help = 'txt file with list of percent cvg file paths')
     parser.add_argument('--assembler_version')
-    parser.add_argument('--pangolin_lineage_csv', help = 'csv output from pangolin')
     parser.add_argument('--nextclade_clades_csv', help = 'csv output from nextclade parser')
     parser.add_argument('--nextclade_variants_csv')
     parser.add_argument('--nextclade_version')
@@ -131,7 +130,7 @@ def get_df_spike_mutations(variants_csv):
     return df
 
 def concat_results(sample_name_list, workbook_path, project_name, 
-                   assembler_version, pangolin_lineage_csv,
+                   assembler_version,
                     nextclade_clades_csv, nextclade_version,
                    cov_out_df, percent_cvg_df, spike_variants_df):
 
@@ -154,29 +153,6 @@ def concat_results(sample_name_list, workbook_path, project_name,
     # read in workbook
     workbook = pd.read_csv(workbook_path, sep = '\t', dtype = {'sample_name' : object, 'hsn' : object})
     workbook = workbook.set_index('sample_name')
-
-    # read in panlogin results
-    pangolin = pd.read_csv(pangolin_lineage_csv, dtype = {'taxon' : object})
-    pangolin = pangolin.rename(columns = {'lineage': 'pangolin_lineage',
-                                          'conflict' : 'pangoLEARN_conflict',
-                                          'taxon' : 'fasta_header',
-                                          'ambiguity_score' : 'pangolin_ambiguity_score',
-                                          'scorpio_call' : 'pangolin_scorpio_call',
-                                          'scorpio_support' : 'pangolin_scorpio_support',
-                                          'scorpio_conflict' : 'pangolin_scorpio_conflict',
-                                          'scorpio_notes' : 'pangolin_scorpio_notes',
-                                          'version' : 'pango_designation_version',
-                                          'scorpio_version' : 'pangolin_scorpio_version',
-                                          'constellation_version' : 'pangolin_constellation_version',
-                                          'is_designated' : 'pangolin_is_designated',
-                                          'qc_status' : 'pangolin_qc_status',
-                                          'qc_notes' : 'pangolin_qc_notes',
-                                          'note' : 'pangolin_note'})
-
-    sample_name = pangolin.apply(lambda x:get_sample_name_from_fasta_header(x.fasta_header), axis = 1)
-    pangolin.insert(value = sample_name, column = 'sample_name', loc = 0)
-    pangolin = pangolin.drop(columns = 'fasta_header')
-    pangolin = pangolin.set_index('sample_name')
 
     # read in nextclade csv
     nextclade = pd.read_csv(nextclade_clades_csv, dtype = {'sample_name' : object})
@@ -254,8 +230,6 @@ if __name__ == '__main__':
     assembler_version = options.assembler_version
     project_name = options.project_name
 
-    pangolin_lineage_csv = options.pangolin_lineage_csv
-
     nextclade_clades_csv = options.nextclade_clades_csv
     nextclade_variants_csv = options.nextclade_variants_csv
     nextclade_version = options.nextclade_version
@@ -277,7 +251,6 @@ if __name__ == '__main__':
                                 workbook_path = workbook_path,
                                 project_name = project_name,
                                 assembler_version = assembler_version,
-                                pangolin_lineage_csv=pangolin_lineage_csv,
                                 nextclade_clades_csv=nextclade_clades_csv,
                                 nextclade_version=nextclade_version,
                                 cov_out_df=cov_out_df,
