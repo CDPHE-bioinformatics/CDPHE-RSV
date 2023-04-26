@@ -1,6 +1,6 @@
 version 1.0
 
-workflow SC2_lineage_calling_and_results {
+workflow RSV_illumina_pe_summary {
     input {
         Array[String] sample_name
         Array[File?] renamed_consensus
