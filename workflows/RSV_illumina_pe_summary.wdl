@@ -4,7 +4,7 @@ workflow RSV_illumina_pe_summary {
     input {
         Array[String] sample_name
         Array[File?] renamed_consensus
-        Array[File?] cov_out
+        Array[File?] cov_out # cov as in coverage
         Array[File?] percent_cvg_csv
         Array[String] out_dir_array
         Array[String] project_name_array
