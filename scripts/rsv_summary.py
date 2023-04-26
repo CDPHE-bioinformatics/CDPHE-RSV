@@ -14,7 +14,6 @@ def getOptions(args=sys.argv[1:]):
     parser.add_argument("--cov_out_files",  help= "txt file with list of bam file paths")
     parser.add_argument('--percent_cvg_files', help = 'txt file with list of percent cvg file paths')
     parser.add_argument('--assembler_version')
-    parser.add_argument('--nextclade_clades_csv', help = 'csv output from nextclade parser')
     parser.add_argument('--nextclade_variants_csv')
     parser.add_argument('--nextclade_version')
     parser.add_argument('--project_name')
@@ -131,7 +130,7 @@ def get_df_spike_mutations(variants_csv):
 
 def concat_results(sample_name_list, workbook_path, project_name, 
                    assembler_version,
-                    nextclade_clades_csv, nextclade_version,
+                    nextclade_version,
                    cov_out_df, percent_cvg_df, spike_variants_df):
 
     # set some functions for getting data formatted
@@ -155,7 +154,6 @@ def concat_results(sample_name_list, workbook_path, project_name,
     workbook = workbook.set_index('sample_name')
 
     # read in nextclade csv
-    nextclade = pd.read_csv(nextclade_clades_csv, dtype = {'sample_name' : object})
     nextclade = nextclade.drop(columns = 'fasta_header')
     nextclade['nextclade_version'] = nextclade_version
     nextclade = nextclade.set_index('sample_name')
@@ -230,7 +228,6 @@ if __name__ == '__main__':
     assembler_version = options.assembler_version
     project_name = options.project_name
 
-    nextclade_clades_csv = options.nextclade_clades_csv
     nextclade_variants_csv = options.nextclade_variants_csv
     nextclade_version = options.nextclade_version
 
@@ -251,7 +248,6 @@ if __name__ == '__main__':
                                 workbook_path = workbook_path,
                                 project_name = project_name,
                                 assembler_version = assembler_version,
-                                nextclade_clades_csv=nextclade_clades_csv,
                                 nextclade_version=nextclade_version,
                                 cov_out_df=cov_out_df,
                                 percent_cvg_df=percent_cvg_df, 
