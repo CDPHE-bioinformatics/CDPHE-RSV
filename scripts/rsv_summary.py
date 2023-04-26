@@ -14,7 +14,6 @@ def getOptions(args=sys.argv[1:]):
     parser.add_argument("--cov_out_files",  help= "txt file with list of bam file paths")
     parser.add_argument('--percent_cvg_files', help = 'txt file with list of percent cvg file paths')
     parser.add_argument('--assembler_version')
-    parser.add_argument('--nextclade_variants_csv')
     parser.add_argument('--nextclade_version')
     parser.add_argument('--project_name')
 
@@ -228,7 +227,6 @@ if __name__ == '__main__':
     assembler_version = options.assembler_version
     project_name = options.project_name
 
-    nextclade_variants_csv = options.nextclade_variants_csv
     nextclade_version = options.nextclade_version
 
     # create lists from the column table txt file input
@@ -239,9 +237,6 @@ if __name__ == '__main__':
     # concat cov_out files and percent_cvg files
     cov_out_df = concat_cov_out(cov_out_file_list=cov_out_file_list)
     percent_cvg_df = concat_percent_cvg(percent_cvg_file_list=percent_cvg_file_list)
-
-    # get df of relavant spike mutations (inlcuding 69/70 del) from nextclade file
-    spike_variants_df = get_df_spike_mutations(variants_csv = nextclade_variants_csv)
 
     # create results file
     results_df = concat_results(sample_name_list = sample_name_list,
