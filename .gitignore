@@ -226,3 +226,6 @@ tags
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,vim,python,venv
+
+# user added
+data/test/
