@@ -93,7 +93,7 @@ workflow RSV_illumina_pe_assembly {
         input:
             sample_name = sample_name,
             fasta = rename_fasta.renamed_consensus,
-            reference = ref_genome,
+            reference_file = ref_genome,
             calc_percent_coverage_py = calc_percent_coverage_py
     }
 
