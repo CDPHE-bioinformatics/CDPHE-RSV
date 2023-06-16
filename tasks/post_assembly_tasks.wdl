@@ -58,6 +58,7 @@ task calc_percent_cvg {
     input {
         File fasta
         String sample_name
+        File reference_file
         File calc_percent_coverage_py
     }
 
@@ -65,6 +66,7 @@ task calc_percent_cvg {
         python ~{calc_percent_coverage_py} \
             --sample_name ~{sample_name} \
             --fasta_file ~{fasta}
+            --reference_file ~{reference_file}
     }
 
     output {
