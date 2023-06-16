@@ -65,7 +65,7 @@ task calc_percent_cvg {
     command {
         python ~{calc_percent_coverage_py} \
             --sample_name ~{sample_name} \
-            --fasta_file ~{fasta}
+            --fasta_file ~{fasta} \
             --reference_file ~{reference_file}
     }
 
