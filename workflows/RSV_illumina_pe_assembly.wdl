@@ -40,12 +40,6 @@ workflow RSV_illumina_pe_assembly {
            fastq_2 = fastq_2
     }
 
-    call preprocess_tasks.fastqc as fastqc_cleaned {
-        input:
-            fastq_1 = seqyclean.cleaned_1,
-            fastq_2 = seqyclean.cleaned_2
-    }
-
     call preprocess_tasks.align_reads as align_reads {
         input:
             sample_name = sample_name,
