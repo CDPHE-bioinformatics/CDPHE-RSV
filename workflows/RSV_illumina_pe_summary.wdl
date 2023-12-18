@@ -17,7 +17,7 @@ workflow RSV_illumina_pe_summary {
 
     # secret variables - for static values convert from array to single entity
     String project_name = project_name_array[0]
-    File workbook_path = select_all(workbook_path_array)[0]
+    File workbook_path = workbook_path_array[0]
     String assembler_version = select_all(assembler_version_array)[0]
     String out_dir = out_dir_array[0]
 
