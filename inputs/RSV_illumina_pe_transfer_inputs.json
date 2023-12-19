@@ -15,5 +15,7 @@
     "RSV_illumina_pe_transfer.stats_out": "${this.stats_out}",
     "RSV_illumina_pe_transfer.covhist_out": "${this.covhist_out}",
     "RSV_illumina_pe_transfer.cov_out": "${this.cov_out}",
-    "RSV_illumina_pe_transfer.renamed_consensus": "${this.renamed_consensus}"
+    "RSV_illumina_pe_transfer.renamed_consensus": "${this.renamed_consensus}",
+    "RSV_illumina_pe_transfer.nextclade_csv": "${this.nextclade_csv}",
+    "RSV_illumina_pe_transfer.nextclade_json": "${this.nextclade_json}"
 }
