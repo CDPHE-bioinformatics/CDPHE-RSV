@@ -91,6 +91,12 @@ workflow RSV_illumina_pe_assembly {
             calc_percent_coverage_py = calc_percent_coverage_py
     }
 
+    call post_assembly_tasks.nextclade as nextclade {
+        input:
+            renamed_consensus = rename_fasta.renamed_consensus,
+            organism = organism
+    }
+
     output {
         File filtered_reads_1 = seqyclean.cleaned_1
         File filtered_reads_2 = seqyclean.cleaned_2
@@ -121,5 +127,9 @@ workflow RSV_illumina_pe_assembly {
         File renamed_consensus = rename_fasta.renamed_consensus
 
         File percent_cvg_csv = calc_percent_cvg.percent_cvg_csv
+
+        String nextclade_version = nextclade.nextclade_version
+        File nextclade_csv = nextclade.nextclade_csv
+        File nextclade_json = nextclade.nextclade_json
     }
 }

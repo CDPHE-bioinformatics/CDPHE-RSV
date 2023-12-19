@@ -80,3 +80,34 @@ task calc_percent_cvg {
         disks: "local-disk 10 SSD"
     }
 }
+
+task nextclade {
+    input {
+        File renamed_consensus
+        String organism
+    }
+
+    String organism_id = if organism == "RSV A" then "rsv_a" else "rsv_b"
+
+    command <<<
+        nextclade --version | awk '/nextclade/ {print $2}' > VERSION
+        nextclade dataset get --name ~{organism_id} \
+            --output-dir /data/~{organism_id}
+        nextclade run --input-dataset /data/~{organism_id} \
+            --output-json nextclade.json --output-csv nextclade.csv \
+            ~{renamed_consensus}
+    >>>
+
+    output {
+        String nextclade_version = read_string("VERSION")
+        File nextclade_json = "nextclade.json"
+        File nextclade_csv = "nextclade.csv"
+    }
+
+    runtime {
+        docker: "nextstrain/nextclade"
+        memory: "16GB"
+        cpu: 4
+        disks: "local-disk 50 HDD"
+    }
+}
