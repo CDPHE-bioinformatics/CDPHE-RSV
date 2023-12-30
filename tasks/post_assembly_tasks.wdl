@@ -111,3 +111,29 @@ task nextclade {
         disks: "local-disk 50 HDD"
     }
 }
+
+task parse_nextclade {
+    input {
+        File nextclade_json_parser_py
+        File nextclade_json
+        String project_name
+    }
+
+    command <<<
+        python ~{nextclade_json_parser_py} \
+            --nextclade_json ~{nextclade_json} \
+            --project_name ~{project_name}
+    >>>
+
+    output {
+        File nextclade_clades_csv = '${project_name}_nextclade_results.csv'
+        File nextclade_variants_csv = '${project_name}_nextclade_variant_summary.csv' 
+    }
+
+    runtime {
+        docker: "mchether/py3-bio:v2"
+        memory: "16 GB"
+        cpu:    4
+        disks: "local-disk 375 LOCAL"
+    }
+}

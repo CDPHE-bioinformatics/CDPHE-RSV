@@ -6,6 +6,7 @@ import "../tasks/post_assembly_tasks.wdl"
 
 workflow RSV_illumina_pe_assembly {
     input {
+        String project_name
         String sample_name
         File fastq_1
         File fastq_2
@@ -20,6 +21,7 @@ workflow RSV_illumina_pe_assembly {
         File rsv_b_gff
 
         File calc_percent_coverage_py
+        File nextclade_json_parser_py
     }
 
     File primer_bed = if organism == "RSV A" then rsv_a_primer_bed else rsv_b_primer_bed
@@ -97,6 +99,13 @@ workflow RSV_illumina_pe_assembly {
             organism = organism
     }
 
+    call post_assembly_tasks.parse_nextclade as parse_nextclade {
+        input:
+            project_name = project_name,
+            nextclade_json_parser_py = nextclade_json_parser_py,
+            nextclade_json = nextclade.nextclade_json
+    }
+
     output {
         File filtered_reads_1 = seqyclean.cleaned_1
         File filtered_reads_2 = seqyclean.cleaned_2
@@ -131,5 +140,8 @@ workflow RSV_illumina_pe_assembly {
         String nextclade_version = nextclade.nextclade_version
         File nextclade_csv = nextclade.nextclade_csv
         File nextclade_json = nextclade.nextclade_json
+
+        File nextclade_clades_csv = parse_nextclade.nextclade_clades_csv
+        File nextclade_variants_csv = parse_nextclade.nextclade_variants_csv
     }
 }

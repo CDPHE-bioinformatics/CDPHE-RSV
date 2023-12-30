@@ -1,4 +1,5 @@
 {
+    "RSV_illumina_pe_assembly.project_name": "${this.project_name}",
     "RSV_illumina_pe_assembly.sample_name": "${this.sample_name}",
     "RSV_illumina_pe_assembly.rsv_subtype": "${this.subtype}",
     "RSV_illumina_pe_assembly.fastq_1": "${this.fastq_1}",
@@ -11,5 +12,5 @@
     "RSV_illumina_pe_assembly.rsv_b_genome": "${workspace.rsv_b_genome}",
     "RSV_illumina_pe_assembly.rsv_b_gff": "${workspace.rsv_b_gff}",
     "RSV_illumina_pe_assembly.calc_percent_coverage_py": "${workspace.calc_percent_coverage_py}",
-    "RSV_illumina_pe_assembly.nextclade_parser_py": "${workspace.nextclade_parser_py}"
+    "RSV_illumina_pe_assembly.nextclade_json_parser_py": "${workspace.nextclade_parser_py}"
 }
