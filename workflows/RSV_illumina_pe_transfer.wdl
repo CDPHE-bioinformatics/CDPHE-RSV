@@ -26,9 +26,6 @@ workflow RSV_illumina_pe_transfer {
         File cov_out
 
         File renamed_consensus
-
-        File nextclade_csv
-        File nextclade_json
     }
 
     call transfer_outputs {
@@ -56,10 +53,7 @@ workflow RSV_illumina_pe_transfer {
             covhist_out = covhist_out,
             cov_out = cov_out,
 
-            renamed_consensus = renamed_consensus,
-
-            nextclade_csv = nextclade_csv,
-            nextclade_json = nextclade_json
+            renamed_consensus = renamed_consensus
     }
 
     output {
@@ -93,9 +87,6 @@ task transfer_outputs {
         File cov_out
 
         File renamed_consensus
-
-        File nextclade_csv
-        File nextclade_json
     }
 
     String out_dir_path = sub('${out_dir}', "/$", "")
@@ -123,9 +114,6 @@ task transfer_outputs {
         gsutil -m cp ~{cov_out} ~{out_dir_path}/bam_stats/
                        
         gsutil -m cp ~{renamed_consensus} ~{out_dir_path}/assemblies/
-
-        gsutil -m cp ~{nextclade_csv} ~{out_dir_path}/nextclade_out/
-        gsutil -m cp ~{nextclade_json} ~{out_dir_path}/nextclade_out/
                        
         transferdate=`date`
         echo $transferdate | tee TRANSFERDATE
