@@ -95,6 +95,7 @@ workflow RSV_illumina_pe_assembly {
 
     call post_assembly_tasks.nextclade as nextclade {
         input:
+            sample_name = sample_name,
             renamed_consensus = rename_fasta.renamed_consensus,
             organism = organism
     }
@@ -102,6 +103,7 @@ workflow RSV_illumina_pe_assembly {
     call post_assembly_tasks.parse_nextclade as parse_nextclade {
         input:
             project_name = project_name,
+            sample_name = sample_name,
             nextclade_json_parser_py = nextclade_json_parser_py,
             nextclade_json = nextclade.nextclade_json
     }

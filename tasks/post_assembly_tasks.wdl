@@ -83,6 +83,7 @@ task calc_percent_cvg {
 
 task nextclade {
     input {
+        String sample_name
         File renamed_consensus
         String organism
     }
@@ -94,14 +95,14 @@ task nextclade {
         nextclade dataset get --name ~{organism_id} \
             --output-dir /data/~{organism_id}
         nextclade run --input-dataset /data/~{organism_id} \
-            --output-json nextclade.json --output-csv nextclade.csv \
+            --output-json ~{sample_name}_nextclade.json --output-csv ~{sample_name}_nextclade.csv \
             ~{renamed_consensus}
     >>>
 
     output {
         String nextclade_version = read_string("VERSION")
-        File nextclade_json = "nextclade.json"
-        File nextclade_csv = "nextclade.csv"
+        File nextclade_json = "~{sample_name}_nextclade.json"
+        File nextclade_csv = "~{sample_name}_nextclade.csv"
     }
 
     runtime {
@@ -114,9 +115,10 @@ task nextclade {
 
 task parse_nextclade {
     input {
+        String project_name
+        String sample_name
         File nextclade_json_parser_py
         File nextclade_json
-        String project_name
     }
 
     command <<<
@@ -126,8 +128,8 @@ task parse_nextclade {
     >>>
 
     output {
-        File nextclade_clades_csv = '${project_name}_nextclade_results.csv'
-        File nextclade_variants_csv = '${project_name}_nextclade_variant_summary.csv' 
+        File nextclade_clades_csv = '${project_name}_${sample_name}_nextclade_results.csv'
+        File nextclade_variants_csv = '${project_name}_${sample_name}_nextclade_variant_summary.csv' 
     }
 
     runtime {

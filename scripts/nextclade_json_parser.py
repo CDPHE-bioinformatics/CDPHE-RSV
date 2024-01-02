@@ -161,8 +161,9 @@ def extract_variant_list(json_path, project_name):
     df['start_nuc_pos'] = nuc_start_list
     df['end_nuc_pos'] = nuc_end_list
 
-    # save df    
-    path = f'{project_name}_nextclade_variant_summary.csv' 
+    # save df
+    sample_name = df['sample_name'][0]
+    path = f'{project_name}_{sample_name}_nextclade_variant_summary.csv' 
     df.to_csv(path, index=False)
     
     
@@ -203,12 +204,12 @@ def get_nextclade(json_path, project_name):
     df['total_AA_deletions'] = totalAADeletions_list
     
     # save df to file
-    path = f'{project_name}_nextclade_results.csv' 
+    sample_name = df['sample_name'][0]
+    path = f'{project_name}_{sample_name}_nextclade_results.csv' 
     df.to_csv(path, index = False)
 
     
 if __name__ == '__main__':
-    
     options = getOptions()
     nextclade_json = options.nextclade_json
     project_name = options.project_name
