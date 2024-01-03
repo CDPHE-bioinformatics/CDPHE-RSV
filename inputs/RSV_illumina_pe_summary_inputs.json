@@ -1,6 +1,8 @@
 {
     "RSV_illumina_pe_summary.sample_name": "${this.sample_name}",
     "RSV_illumina_pe_summary.renamed_consensus": "${this.renamed_consensus}",
+    "RSV_illumina_pe_summary.nextclade_clades_csv": "${this.nextclade_clades_csv}",
+    "RSV_illumina_pe_summary.nextclade_variants_csv": "${this.nextclade_variants_csv}",
     "RSV_illumina_pe_summary.cov_out": "${this.cov_out}",
     "RSV_illumina_pe_summary.percent_cvg_csv": "${this.percent_cvg_csv}",
     "RSV_illumina_pe_summary.out_dir_array": "${this.out_dir_array}",
