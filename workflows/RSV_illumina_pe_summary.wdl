@@ -4,6 +4,8 @@ workflow RSV_illumina_pe_summary {
     input {
         Array[String] sample_name
         Array[File?] renamed_consensus
+        Array[File] nextclade_clades_csv
+        Array[File] nextclade_variants_csv
         Array[File?] cov_out # cov as in coverage
         Array[File?] percent_cvg_csv
         Array[String] out_dir_array
@@ -24,6 +26,12 @@ workflow RSV_illumina_pe_summary {
     call concatenate {
         input:
             renamed_consensus = select_all(renamed_consensus)
+    }
+
+    call concatenate_nextclade {
+        input:
+            nextclade_clades_csv = nextclade_clades_csv, 
+            nextclade_variants_csv = nextclade_variants_csv
     }
 
     call results_table {
@@ -47,6 +55,8 @@ workflow RSV_illumina_pe_summary {
 
     output {
         File cat_fastas = concatenate.cat_fastas
+        File cat_nextclade_clades = concatenate_nextclade.cat_nextclade_clades
+        File cat_nextclade_varaints = concatenate_nextclade.cat_nextclade_varaints
         File sequencing_results_csv = results_table.sequencing_results_csv
         File wgs_horizon_report_csv = results_table.wgs_horizon_report_csv
     }
@@ -70,6 +80,23 @@ task concatenate {
         memory: "1 GB"
         cpu:    1
         disks: "local-disk 10 SSD"
+    }
+}
+
+task concatenate_nextclade {
+    input {
+        Array[File] nextclade_clades_csv
+        Array[File] nextclade_variants_csv
+    }
+
+    command <<<
+        awk 'FNR>1 || NR==1' ~{sep=" " nextclade_clades_csv} > concatenate_nextclade_clades.csv
+        awk 'FNR>1 || NR==1' ~{sep=" " nextclade_variants_csv} > concatenate_nextclade_variants.csv
+    >>>
+
+    output {
+        File cat_nextclade_clades = "concatenate_nextclade_clades.csv"
+        File cat_nextclade_varaints = "concatenate_nextclade_variants.csv"
     }
 }
 
