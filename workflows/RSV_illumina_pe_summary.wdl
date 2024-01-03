@@ -100,6 +100,13 @@ task concatenate_nextclade {
         File cat_nextclade_clades_csv = "concatenate_nextclade_clades.csv"
         File cat_nextclade_variants_csv = "concatenate_nextclade_variants.csv"
     }
+
+    runtime {
+        docker: "ubuntu"
+        memory: "1 GB"
+        cpu:    1
+        disks: "local-disk 10 SSD"
+    }
 }
 
 task results_table {
