@@ -46,17 +46,19 @@ workflow RSV_illumina_pe_summary {
     }
 
     call transfer {
-      input:
-          out_dir = out_dir,
-          cat_fastas = concatenate.cat_fastas,
-          sequencing_results_csv = results_table.sequencing_results_csv,
-          wgs_horizon_report_csv = results_table.wgs_horizon_report_csv
+        input:
+            out_dir = out_dir,
+            cat_fastas = concatenate.cat_fastas,
+            cat_nextclade_clades_csv = concatenate_nextclade.cat_nextclade_clades_csv,
+            cat_nextclade_variants_csv = concatenate_nextclade.cat_nextclade_variants_csv,
+            sequencing_results_csv = results_table.sequencing_results_csv,
+            wgs_horizon_report_csv = results_table.wgs_horizon_report_csv
     }
 
     output {
         File cat_fastas = concatenate.cat_fastas
-        File cat_nextclade_clades = concatenate_nextclade.cat_nextclade_clades
-        File cat_nextclade_varaints = concatenate_nextclade.cat_nextclade_varaints
+        File cat_nextclade_clades_csv = concatenate_nextclade.cat_nextclade_clades_csv
+        File cat_nextclade_variants_csv = concatenate_nextclade.cat_nextclade_variants_csv
         File sequencing_results_csv = results_table.sequencing_results_csv
         File wgs_horizon_report_csv = results_table.wgs_horizon_report_csv
     }
@@ -95,8 +97,8 @@ task concatenate_nextclade {
     >>>
 
     output {
-        File cat_nextclade_clades = "concatenate_nextclade_clades.csv"
-        File cat_nextclade_varaints = "concatenate_nextclade_variants.csv"
+        File cat_nextclade_clades_csv = "concatenate_nextclade_clades.csv"
+        File cat_nextclade_variants_csv = "concatenate_nextclade_variants.csv"
     }
 }
 
@@ -140,6 +142,8 @@ task transfer {
         File cat_fastas
         File sequencing_results_csv
         File wgs_horizon_report_csv
+        File cat_nextclade_clades_csv
+        File cat_nextclade_variants_csv
     }
 
     String outdirpath = sub(out_dir, "/$", "")
@@ -148,6 +152,8 @@ task transfer {
         gsutil -m cp ~{cat_fastas} ~{outdirpath}/multifasta/
         gsutil -m cp ~{sequencing_results_csv} ~{outdirpath}/summary_results/
         gsutil -m cp ~{wgs_horizon_report_csv} ~{outdirpath}/summary_results/
+        gsutil -m cp ~{cat_nextclade_clades_csv} ~{outdirpath}/summary_results/
+        gsutil -m cp ~{cat_nextclade_variants_csv} ~{outdirpath}/summary_results/
     >>>
 
     runtime {
