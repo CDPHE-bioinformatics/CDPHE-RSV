@@ -104,13 +104,13 @@ task concatenate_nextclade {
 
 task results_table {
     input {
-      Array[String] sample_name
-      File concat_seq_results_py
-      Array[File] cov_out
-      Array[File] percent_cvg_csv
-      String project_name
-      String assembler_version
-      File workbook_path
+        Array[String] sample_name
+        File concat_seq_results_py
+        Array[File] cov_out
+        Array[File] percent_cvg_csv
+        String project_name
+        String assembler_version
+        File workbook_path
     }
 
     command <<<
