@@ -1,5 +1,7 @@
 version 1.0
 
+import "../tasks/transfer_tasks.wdl"
+
 workflow RSV_illumina_pe_summary {
     input {
         Array[String] sample_name
@@ -45,7 +47,7 @@ workflow RSV_illumina_pe_summary {
         workbook_path = workbook_path
     }
 
-    call transfer_summary {
+    call transfer_tasks.transfer_summary as transfer_summary {
         input:
             out_dir = out_dir,
             cat_fastas = concatenate_consensus.cat_fastas,
@@ -139,34 +141,6 @@ task results_table {
         docker: "mchether/py3-bio:v2"
         memory: "16 GB"
         cpu:    4
-        disks: "local-disk 100 SSD"
-    }
-}
-
-task transfer_summary {
-    input {
-        String out_dir
-        File cat_fastas
-        File sequencing_results_csv
-        File wgs_horizon_report_csv
-        File cat_nextclade_clades_csv
-        File cat_nextclade_variants_csv
-    }
-
-    String outdirpath = sub(out_dir, "/$", "")
-
-    command <<<
-        gsutil -m cp ~{cat_fastas} ~{outdirpath}/multifasta/
-        gsutil -m cp ~{sequencing_results_csv} ~{outdirpath}/summary_results/
-        gsutil -m cp ~{wgs_horizon_report_csv} ~{outdirpath}/summary_results/
-        gsutil -m cp ~{cat_nextclade_clades_csv} ~{outdirpath}/summary_results/
-        gsutil -m cp ~{cat_nextclade_variants_csv} ~{outdirpath}/summary_results/
-    >>>
-
-    runtime {
-        docker: "theiagen/utility:1.0"
-        memory: "16 GB"
-        cpu: 4
         disks: "local-disk 100 SSD"
     }
 }

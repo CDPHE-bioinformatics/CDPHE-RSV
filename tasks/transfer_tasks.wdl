@@ -73,3 +73,31 @@ task transfer_assembly {
         disks: "local-disk 100 SSD"
     }
 }
+
+task transfer_summary {
+    input {
+        String out_dir
+        File cat_fastas
+        File sequencing_results_csv
+        File wgs_horizon_report_csv
+        File cat_nextclade_clades_csv
+        File cat_nextclade_variants_csv
+    }
+
+    String outdirpath = sub(out_dir, "/$", "")
+
+    command <<<
+        gsutil -m cp ~{cat_fastas} ~{outdirpath}/multifasta/
+        gsutil -m cp ~{sequencing_results_csv} ~{outdirpath}/summary_results/
+        gsutil -m cp ~{wgs_horizon_report_csv} ~{outdirpath}/summary_results/
+        gsutil -m cp ~{cat_nextclade_clades_csv} ~{outdirpath}/summary_results/
+        gsutil -m cp ~{cat_nextclade_variants_csv} ~{outdirpath}/summary_results/
+    >>>
+
+    runtime {
+        docker: "theiagen/utility:1.0"
+        memory: "16 GB"
+        cpu: 4
+        disks: "local-disk 100 SSD"
+    }
+}
