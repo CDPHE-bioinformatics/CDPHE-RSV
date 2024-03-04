@@ -28,7 +28,7 @@ workflow RSV_illumina_pe_transfer {
         File renamed_consensus
     }
 
-    call transfer_outputs {
+    call transfer_summary {
         input:
             out_dir = out_dir,
 
@@ -57,11 +57,11 @@ workflow RSV_illumina_pe_transfer {
     }
 
     output {
-        String transfer_date = transfer_outputs.transfer_date
+        String transfer_date = transfer_summary.transfer_date
     }
 }
 
-task transfer_outputs {
+task transfer_summary {
     input {
         String out_dir
 

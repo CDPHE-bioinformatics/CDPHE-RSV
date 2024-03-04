@@ -45,7 +45,7 @@ workflow RSV_illumina_pe_summary {
         workbook_path = workbook_path
     }
 
-    call transfer {
+    call transfer_summary {
         input:
             out_dir = out_dir,
             cat_fastas = concatenate_consensus.cat_fastas,
@@ -143,7 +143,7 @@ task results_table {
     }
 }
 
-task transfer {
+task transfer_summary {
     input {
         String out_dir
         File cat_fastas
