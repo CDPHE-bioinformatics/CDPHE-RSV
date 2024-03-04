@@ -23,7 +23,7 @@ workflow RSV_illumina_pe_summary {
     String assembler_version = select_all(assembler_version_array)[0]
     String out_dir = out_dir_array[0]
 
-    call concatenate {
+    call concatenate_consensus {
         input:
             renamed_consensus = select_all(renamed_consensus)
     }
@@ -48,7 +48,7 @@ workflow RSV_illumina_pe_summary {
     call transfer {
         input:
             out_dir = out_dir,
-            cat_fastas = concatenate.cat_fastas,
+            cat_fastas = concatenate_consensus.cat_fastas,
             cat_nextclade_clades_csv = concatenate_nextclade.cat_nextclade_clades_csv,
             cat_nextclade_variants_csv = concatenate_nextclade.cat_nextclade_variants_csv,
             sequencing_results_csv = results_table.sequencing_results_csv,
@@ -56,7 +56,7 @@ workflow RSV_illumina_pe_summary {
     }
 
     output {
-        File cat_fastas = concatenate.cat_fastas
+        File cat_fastas = concatenate_consensus.cat_fastas
         File cat_nextclade_clades_csv = concatenate_nextclade.cat_nextclade_clades_csv
         File cat_nextclade_variants_csv = concatenate_nextclade.cat_nextclade_variants_csv
         File sequencing_results_csv = results_table.sequencing_results_csv
@@ -64,7 +64,7 @@ workflow RSV_illumina_pe_summary {
     }
 }
 
-task concatenate {
+task concatenate_consensus {
     input {
         Array[File] renamed_consensus
     }
