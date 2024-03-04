@@ -106,7 +106,7 @@ task nextclade {
     }
 
     runtime {
-        docker: "nextstrain/nextclade"
+        docker: "nextstrain/nextclade:2.14.0"
         memory: "16GB"
         cpu: 4
         disks: "local-disk 50 HDD"
