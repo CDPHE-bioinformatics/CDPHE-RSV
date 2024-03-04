@@ -1,6 +1,6 @@
 version 1.0
 
-task transfer_summary {
+task transfer_assembly {
     meta {
         description: "Transfers files generated in the assembly workflow."
     }

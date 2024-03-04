@@ -111,9 +111,25 @@ workflow RSV_illumina_pe_assembly {
             nextclade_json = nextclade.nextclade_json
     }
 
-    call transfer_tasks.transfer_summary as transfer_summary {
+    call transfer_tasks.transfer_assembly as transfer_assembly {
         input:
-            out_dir = 
+            out_dir =  out_dir_path,
+            filtered_reads_1 = seqyclean.cleaned_1,
+            filtered_reads_2 = seqyclean.cleaned_2,
+            seqyclean_summary = seqyclean.seqyclean_summary,
+            fastqc_raw1_html = fastqc_raw.fastqc1_html,
+            fastqc_raw1_zip = fastqc_raw.fastqc1_zip,
+            fastqc_raw2_html = fastqc_raw.fastqc2_html,
+            fastqc_raw2_zip = fastqc_raw.fastqc2_zip,
+            trimsort_bam = ivar_trim.trimsort_bam,
+            trimsort_bamindex = ivar_trim.trimsort_bamindex,
+            variants = ivar_var.var_out,
+            consensus = ivar_consensus.consensus_out,
+            flagstat_out = bam_stats.flagstat_out,
+            stats_out = bam_stats.stats_out,
+            covhist_out = bam_stats.covhist_out,
+            cov_out = bam_stats.cov_out,
+            renamed_consensus = rename_fasta.renamed_consensus
     }
 
     output {
@@ -153,5 +169,7 @@ workflow RSV_illumina_pe_assembly {
 
         File nextclade_clades_csv = parse_nextclade.nextclade_clades_csv
         File nextclade_variants_csv = parse_nextclade.nextclade_variants_csv
+
+        String transfer_date_assembly = transfer_assembly.transfer_date
     }
 }
