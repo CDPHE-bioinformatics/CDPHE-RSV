@@ -1,130 +1,75 @@
 version 1.0
 
-task transfer {
+task transfer_summary {
     meta {
-        description: "This task transfers fastqc, fasta, bam, qc_metrics files to gcp"
+        description: "Transfers files generated in the assembly workflow."
     }
 
     input {
-        String sample_name
-        String bucket_path
+        String out_dir
 
-        # pre-process outputs
-        File fastqc1_html_raw
-        File fastqc1_zip_raw
-        File? fastqc2_html_raw
-        File? fastqc2_zip_raw
-
+        File filtered_reads_1
+        File filtered_reads_2
         File seqyclean_summary
 
-        File preprocess_qc_metrics
+        File fastqc_raw1_html
+        File fastqc_raw1_zip
+        File fastqc_raw2_html
+        File fastqc_raw2_zip
 
-        File fastqc1_html_cleaned
-        File fastqc1_zip_cleaned
-        File? fastqc2_html_cleaned
-        File? fastqc2_zip_cleaned
+        File trimsort_bam
+        File trimsort_bamindex
 
-        # irma assembly outputs
-        Array[File] irma_assemblies
-        Array[File] irma_bam_files
-        Array[File] irma_vcfs
+        File variants
 
-        # ivar_assemblies (from irma assembler) and samtools tools
-        Array[File]? irma_sorted_bams
-        Array[File]? irma_ivar_assemblies
-        Array[File]? irma_ivar_outputs
+        File consensus
 
-        # post assembly qc outputs
-        File? irma_qc_metrics
+        File flagstat_out
+        File stats_out
+        File covhist_out
+        File cov_out
 
+        File renamed_consensus
     }
-    
-    String out_path = sub(bucket_path, "/$", "") # fix if have a / at end
+
+    String out_dir_path = sub('${out_dir}', "/$", "") # remove trailing slash
 
     command <<<
-        # transfer fastqc raw
-        gsutil -m cp ~{fastqc1_html_raw} ~{out_path}/fastqc_raw/
-        gsutil -m cp ~{fastqc1_zip_raw} ~{out_path}/fastqc_raw/
-        gsutil -m cp ~{fastqc2_html_raw} ~{out_path}/fastqc_raw/
-        gsutil -m cp ~{fastqc2_zip_raw} ~{out_path}/fastqc_raw/
-
-        # transfter seqyclean
-        gsutil -m cp ~{seqyclean_summary} ~{out_path}/seqyclean/
-
-        # transfer fastqc clean
-        gsutil -m cp ~{fastqc1_html_cleaned} ~{out_path}/fastqc_cleaned/
-        gsutil -m cp ~{fastqc1_zip_cleaned} ~{out_path}/fastqc_cleaned/
-        gsutil -m cp ~{fastqc2_html_cleaned} ~{out_path}/fastqc_cleaned/
-        gsutil -m cp ~{fastqc2_zip_cleaned} ~{out_path}/fastqc_cleaned/
-
-        # transfer preprocess qc metrics summary
-        gsutil -m cp ~{preprocess_qc_metrics} ~{out_path}/preprocess_qc_metrics/
-
-        # transfer irma
-        gsutil -m cp ~{sep = " " irma_assemblies} ~{out_path}/irma/~{sample_name}/assemblies/
-        gsutil -m cp ~{sep = " " irma_bam_files} ~{out_path}/irma/~{sample_name}/bam_files/
-        gsutil -m cp ~{sep = " " irma_vcfs} ~{out_path}/irma/~{sample_name}/vcf_files/
-
-        # transfer ivar assemblies and sorted bams 
-        gsutil -m cp ~{sep = " " irma_sorted_bams} ~{out_path}/irma/~{sample_name}/sorted_bam_files/
-         gsutil -m cp ~{sep = " " irma_ivar_assemblies} ~{out_path}/irma/~{sample_name}/irma_ivar_consensus/
-         gsutil -m cp ~{sep = " " irma_ivar_outputs} ~{out_path}/irma/~{sample_name}/irma_ivar_outputs/
-
-        # transfer post assembly qc
-        gsutil -m cp ~{irma_qc_metrics} ~{out_path}/irma/~{sample_name}/
-
-        # transfer date
-        transferdate=`date`
-        echo $transferdate | tee TRANSFERDATE
-
+        gsutil -m cp ~{filtered_reads_1} ~{out_dir_path}/seqyclean/
+        gsutil -m cp ~{filtered_reads_2} ~{out_dir_path}/seqyclean/
+        gsutil -m cp ~{seqyclean_summary} ~{out_dir_path}/seqyclean/
+                       
+        gsutil -m cp ~{fastqc_raw1_html} ~{out_dir_path}/fastqc/
+        gsutil -m cp ~{fastqc_raw1_zip} ~{out_dir_path}/fastqc/
+        gsutil -m cp ~{fastqc_raw2_html} ~{out_dir_path}/fastqc/
+        gsutil -m cp ~{fastqc_raw2_zip} ~{out_dir_path}/fastqc/
+                       
+        gsutil -m cp ~{trimsort_bam} ~{out_dir_path}/alignments/
+        gsutil -m cp ~{trimsort_bamindex} ~{out_dir_path}/alignments/
+                       
+        gsutil -m cp ~{variants} ~{out_dir_path}/variants/
+                       
+        gsutil -m cp ~{consensus} ~{out_dir_path}/assemblies/
+                       
+        gsutil -m cp ~{flagstat_out} ~{out_dir_path}/bam_stats/
+        gsutil -m cp ~{stats_out} ~{out_dir_path}/bam_stats/
+        gsutil -m cp ~{covhist_out} ~{out_dir_path}/bam_stats/
+        gsutil -m cp ~{cov_out} ~{out_dir_path}/bam_stats/
+                       
+        gsutil -m cp ~{renamed_consensus} ~{out_dir_path}/assemblies/
+                       
+        TRANSFER_DATE=$(date)
+        echo "$TRANSFER_DATE" | tee TRANSFER_DATE
     >>>
+
     output {
-        String transfer_date = read_string("TRANSFERDATE")
+        String transfer_date = read_string("TRANSFER_DATE")
     }
 
     runtime {
         docker: "theiagen/utility:1.0"
-        memory: "16 GiB"
+        memory: "2 GB"
         cpu: 4
-        disks: "local-disk 50 SSD"
-        preemptible: 0
+        disks: "local-disk 100 SSD"
     }
-
-}
-
-task transfer_assembly_summary_wdl {
-    meta {
-        description: ""
-    }
-
-    input {
-
-        String bucket_path
-        File sequencing_results_csv
-    }
-
-    String out_path = sub(bucket_path, "/$", "") # fix if have a / at end
-
-
-    command <<< 
-         gsutil -m cp ~{sequencing_results_csv} ~{out_path}/summary_files/
-
-         # transfer date
-        transferdate=`date`
-        echo $transferdate | tee TRANSFERDATE
-    >>>
-
-    output {
-        String transfer_date = read_string("TRANSFERDATE")
-    }
-
-    runtime {
-        docker: "theiagen/utility:1.0"
-        memory: "16 GiB"
-        cpu: 4
-        disks: "local-disk 50 SSD"
-        preemptible: 0
-    }
-
-    
 }

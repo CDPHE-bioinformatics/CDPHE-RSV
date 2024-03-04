@@ -3,6 +3,7 @@ version 1.0
 import "../tasks/preprocess_tasks.wdl"
 import "../tasks/ivar_tasks.wdl"
 import "../tasks/post_assembly_tasks.wdl"
+import "../tasks/transfer_tasks.wdl"
 
 workflow RSV_illumina_pe_assembly {
     input {
@@ -11,6 +12,7 @@ workflow RSV_illumina_pe_assembly {
         File fastq_1
         File fastq_2
         File adapters_and_contaminants
+        String out_dir
 
         String organism # for subtype
         File rsv_a_primer_bed
@@ -24,6 +26,7 @@ workflow RSV_illumina_pe_assembly {
         File nextclade_json_parser_py
     }
 
+    String out_dir_path = sub(out_dir, "/$", "") # remove trailing slash
     File primer_bed = if organism == "RSV A" then rsv_a_primer_bed else rsv_b_primer_bed
     File ref_genome = if organism == "RSV A" then rsv_a_genome else rsv_b_genome
     File ref_gff = if organism == "RSV A" then rsv_a_gff else rsv_b_gff
@@ -106,6 +109,11 @@ workflow RSV_illumina_pe_assembly {
             sample_name = sample_name,
             nextclade_json_parser_py = nextclade_json_parser_py,
             nextclade_json = nextclade.nextclade_json
+    }
+
+    call transfer_tasks.transfer_summary as transfer_summary {
+        input:
+            out_dir = 
     }
 
     output {
