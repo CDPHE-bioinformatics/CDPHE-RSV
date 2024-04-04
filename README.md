@@ -19,14 +19,9 @@ graph TD
     D3[concatenate_nextclade] --> G3
     A3 --> F3
     F3[results_table] --> G3
-    G3[transfer] --> H3
-    H3{{Cloud Bucket}}
-    end
-
-    subgraph Transfer
-    A2(Assembly Files) --> B2
-    B2[transfer_outputs] --> C2
-    C2{{Cloud Bucket}}
+    G3{{Summary Files}} --> H3
+    H3[transfer_summary] --> I3
+    I3{{Cloud Bucket}}
     end
 
     subgraph Assembly
@@ -46,6 +41,8 @@ graph TD
     J1[calc_percent_cvg] --> N1
     K1[nextclade] --> L1
     L1[parse_nextclade] --> N1
-    N1(Assembly Files)
+    N1(Assembly Files) --> O1
+    O1(transfer_assembly) --> P1
+    P1{{Cloud Bucket}}
     end
 ```
