@@ -7,7 +7,6 @@ import "../tasks/transfer_tasks.wdl"
 
 workflow RSV_illumina_pe_assembly {
     input {
-        String project_name
         String sample_name
         File fastq_1
         File fastq_2
@@ -23,7 +22,6 @@ workflow RSV_illumina_pe_assembly {
         File rsv_b_gff
 
         File calc_percent_coverage_py
-        File nextclade_json_parser_py
     }
 
     String out_dir_path = sub(out_dir, "/$", "") # remove trailing slash
@@ -103,14 +101,6 @@ workflow RSV_illumina_pe_assembly {
             organism = organism
     }
 
-    call post_assembly_tasks.parse_nextclade as parse_nextclade {
-        input:
-            project_name = project_name,
-            sample_name = sample_name,
-            nextclade_json_parser_py = nextclade_json_parser_py,
-            nextclade_json = nextclade.nextclade_json
-    }
-
     call transfer_tasks.transfer_assembly as transfer_assembly {
         input:
             out_dir =  out_dir_path,
@@ -129,6 +119,8 @@ workflow RSV_illumina_pe_assembly {
             stats_out = bam_stats.stats_out,
             covhist_out = bam_stats.covhist_out,
             cov_out = bam_stats.cov_out,
+            nextclade_csv = nextclade.nextclade_csv,
+            nextclade_json = nextclade.nextclade_json,
             renamed_consensus = rename_fasta.renamed_consensus
     }
 
@@ -166,9 +158,6 @@ workflow RSV_illumina_pe_assembly {
         String nextclade_version = nextclade.nextclade_version
         File nextclade_csv = nextclade.nextclade_csv
         File nextclade_json = nextclade.nextclade_json
-
-        File nextclade_clades_csv = parse_nextclade.nextclade_clades_csv
-        File nextclade_variants_csv = parse_nextclade.nextclade_variants_csv
 
         String transfer_date_assembly = transfer_assembly.transfer_date
     }

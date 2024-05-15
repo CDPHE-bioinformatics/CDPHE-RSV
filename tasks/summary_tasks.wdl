@@ -51,6 +51,7 @@ task results_table {
         File concat_seq_results_py
         Array[File] cov_out
         Array[File] percent_cvg_csv
+        Array[File] nextclade_csv
         String project_name
         String assembler_version
         File workbook_path
@@ -62,6 +63,7 @@ task results_table {
             --workbook_path "~{workbook_path}" \
             --cov_out_files "~{write_lines(cov_out)}" \
             --percent_cvg_files "~{write_lines(percent_cvg_csv)}" \
+            --nextclade_csv_files "~{write_lines(nextclade_csv)}" \
             --assembler_version "~{assembler_version}" \
             --project_name "~{project_name}" 
     >>>

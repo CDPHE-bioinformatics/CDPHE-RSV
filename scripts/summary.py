@@ -13,6 +13,7 @@ def getOptions(args=sys.argv[1:]):
     parser.add_argument('--workbook_path')
     parser.add_argument("--cov_out_files",  help= "txt file with list of bam file paths")
     parser.add_argument('--percent_cvg_files', help = 'txt file with list of percent cvg file paths')
+    parser.add_argument('--nextclade_csv_files', help = 'txt file with list of nextclade csv file paths')
     parser.add_argument('--assembler_version')
     parser.add_argument('--project_name')
 
@@ -74,6 +75,9 @@ def concat_percent_cvg(percent_cvg_file_list):
     df = pd.concat(df_list)
 
     return df
+
+def concat_nextclade(nextclade_csv_files):
+    raise NotImplementedError()
 
 def concat_results(sample_name_list, workbook_path, project_name, 
                    assembler_version,
@@ -161,6 +165,7 @@ if __name__ == '__main__':
     workbook_path = options.workbook_path
     cov_out_files = options.cov_out_files
     percent_cvg_files = options.percent_cvg_files
+    nextclade_csv_files = options.nextclade_csv_files
     assembler_version = options.assembler_version
     project_name = options.project_name
 
@@ -168,10 +173,12 @@ if __name__ == '__main__':
     sample_name_list = create_list_from_write_lines_input(write_lines_input=sample_name_array)
     cov_out_file_list = create_list_from_write_lines_input(write_lines_input = cov_out_files)
     percent_cvg_file_list = create_list_from_write_lines_input(write_lines_input=percent_cvg_files)
+    nextclade_csv_file_list = create_list_from_write_lines_input(write_lines_input=nextclade_csv_files)
     
     # concat cov_out files and percent_cvg files
     cov_out_df = concat_cov_out(cov_out_file_list=cov_out_file_list)
     percent_cvg_df = concat_percent_cvg(percent_cvg_file_list=percent_cvg_file_list)
+    nextclade_df = concat_nextclade_csv(nextclade_csv_file_list=nextclade_csv_file_list)
 
     # create results file
     results_df = concat_results(sample_name_list = sample_name_list,
@@ -179,7 +186,8 @@ if __name__ == '__main__':
                                 project_name = project_name,
                                 assembler_version = assembler_version,
                                 cov_out_df=cov_out_df,
-                                percent_cvg_df=percent_cvg_df)
+                                percent_cvg_df=percent_cvg_df,
+                                nextclade_df=nextclade_df)
     
     # create wgs horizon output
     make_wgs_horizon_output(project_name = project_name,
