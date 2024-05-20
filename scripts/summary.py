@@ -76,12 +76,18 @@ def concat_percent_cvg(percent_cvg_file_list):
 
     return df
 
-def concat_nextclade(nextclade_csv_files):
-    raise NotImplementedError()
+def concat_nextclade_csv(nextclade_csv_file_list):
+    df_list = []
+    for file in nextclade_csv_file_list:
+        d = pd.read_csv(file, sep = ';')
+        df_list.append(d)
+
+    df = pd.concat(df_list)
+    return df
 
 def concat_results(sample_name_list, workbook_path, project_name, 
                    assembler_version,
-                   cov_out_df, percent_cvg_df):
+                   cov_out_df, percent_cvg_df, nextclade_df):
 
     # set some functions for getting data formatted
     def get_sample_name_from_fasta_header(fasta_header):
@@ -97,7 +103,6 @@ def concat_results(sample_name_list, workbook_path, project_name,
     df = df.set_index('sample_name')
     df['analysis_date'] = str(date.today())
     df['assembler_version'] = assembler_version
-    print(df)
 
     # read in workbook
     workbook = pd.read_csv(workbook_path, sep = '\t', dtype = {'sample_name' : object, 'hsn' : object})
@@ -106,11 +111,15 @@ def concat_results(sample_name_list, workbook_path, project_name,
     # set index on the samtools_df and percent_cvg_df and variants_df to prepare for joining
     cov_out_df = cov_out_df.set_index('sample_name')
     percent_cvg_df = percent_cvg_df.set_index('sample_name')
+    nextclade_df['sample_name'] = nextclade_df['seqName'].apply(get_sample_name_from_fasta_header)
+    nextclade_df = nextclade_df[['sample_name', 'clade', 'G_clade']]
+    nextclade_df = nextclade_df.set_index('sample_name')
 
     # join
     j = df.join(workbook, how = 'left')
     j = j.join(percent_cvg_df, how = 'left')
     j = j.join(cov_out_df, how = 'left')
+    j = j.join(nextclade_df, how = 'left')
     j = j.reset_index()
 
     # add fasta header
@@ -131,7 +140,7 @@ def concat_results(sample_name_list, workbook_path, project_name,
     columns.sort()
     primary_columns = ['hsn', 'sample_name', 'project_name', 'plate_name', 
                        'run_name', 'analysis_date', 'run_date', 'assembly_pass', 
-                       'percent_coverage']
+                       'percent_coverage', 'clade', 'G_clade']
     for column in columns:
          if column not in primary_columns:
               primary_columns.append(column)
@@ -175,7 +184,7 @@ if __name__ == '__main__':
     percent_cvg_file_list = create_list_from_write_lines_input(write_lines_input=percent_cvg_files)
     nextclade_csv_file_list = create_list_from_write_lines_input(write_lines_input=nextclade_csv_files)
     
-    # concat cov_out files and percent_cvg files
+    # concat cov_out files, percent_cvg files, and nextclade files
     cov_out_df = concat_cov_out(cov_out_file_list=cov_out_file_list)
     percent_cvg_df = concat_percent_cvg(percent_cvg_file_list=percent_cvg_file_list)
     nextclade_df = concat_nextclade_csv(nextclade_csv_file_list=nextclade_csv_file_list)

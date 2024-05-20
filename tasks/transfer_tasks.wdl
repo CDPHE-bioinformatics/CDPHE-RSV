@@ -80,8 +80,6 @@ task transfer_summary {
         File cat_fastas
         File sequencing_results_csv
         File wgs_horizon_report_csv
-        File cat_nextclade_clades_csv
-        File cat_nextclade_variants_csv
     }
 
     String outdirpath = sub(out_dir, "/$", "")
@@ -90,8 +88,6 @@ task transfer_summary {
         gsutil -m cp ~{cat_fastas} ~{outdirpath}/multifasta/
         gsutil -m cp ~{sequencing_results_csv} ~{outdirpath}/summary_results/
         gsutil -m cp ~{wgs_horizon_report_csv} ~{outdirpath}/summary_results/
-        gsutil -m cp ~{cat_nextclade_clades_csv} ~{outdirpath}/summary_results/
-        gsutil -m cp ~{cat_nextclade_variants_csv} ~{outdirpath}/summary_results/
     >>>
 
     runtime {

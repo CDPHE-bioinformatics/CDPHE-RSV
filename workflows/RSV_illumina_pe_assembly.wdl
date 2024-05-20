@@ -119,8 +119,6 @@ workflow RSV_illumina_pe_assembly {
             stats_out = bam_stats.stats_out,
             covhist_out = bam_stats.covhist_out,
             cov_out = bam_stats.cov_out,
-            nextclade_csv = nextclade.nextclade_csv,
-            nextclade_json = nextclade.nextclade_json,
             renamed_consensus = rename_fasta.renamed_consensus
     }
 
