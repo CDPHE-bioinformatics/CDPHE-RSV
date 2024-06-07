@@ -77,10 +77,10 @@ def concat_cov_out(cov_out_file_list: list[str]) -> pd.DataFrame:
         d = pd.read_csv(file, sep="\t")
         if re.search("barcode", file):
             # for nanopore runs
-            sample_name = re.findall("/([0-9a-zA-Z_\-\.]+)_barcode", file)[0]
+            sample_name = re.findall(r"/([0-9a-zA-Z_\-\.]+)_barcode", file)[0]
         else:
             # for illumina runs
-            sample_name = re.findall("/([0-9a-zA-Z_\-\.]+)_coverage.txt", file)[0]
+            sample_name = re.findall(r"/([0-9a-zA-Z_\-\.]+)_coverage.txt", file)[0]
 
         # pull data from samtools output
         num_reads = d.numreads[0]
@@ -139,7 +139,7 @@ def concat_results(
 
     # set some functions for getting data formatted
     def get_sample_name_from_fasta_header(fasta_header: str) -> str:
-        sample_name = str(re.findall("CO-CDPHE-([0-9a-zA-Z_\-\.]+)", fasta_header)[0])
+        sample_name = str(re.findall(r"CO-CDPHE-([0-9a-zA-Z_\-\.]+)", fasta_header)[0])
         return sample_name
 
     def create_fasta_header(sample_name: str) -> str:
