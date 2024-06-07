@@ -79,10 +79,10 @@ def calculate_percent_coverage(
             num_non_ambiguous_bases = aligned_bases - uncorrected_Ns
             coverage = round((1 - (Ns / ref_genome_length)) * 100, 2)
     else:
-        aligned_bases = np.NaN  # type: ignore
-        Ns = np.NaN  # type: ignore
-        num_non_ambiguous_bases = np.NaN  # type: ignore
-        coverage = np.NaN  # type: ignore
+        aligned_bases = np.NaN # type: ignore
+        Ns = np.NaN # type: ignore
+        num_non_ambiguous_bases = np.NaN # type: ignore
+        coverage = np.NaN # type: ignore
 
     # create pd df with calc_percent_cvg
     df = pd.DataFrame()
