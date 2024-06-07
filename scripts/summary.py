@@ -18,8 +18,9 @@ log = logging.getLogger(__name__)
 
 
 def parse_args(args: list[str]) -> argparse.Namespace:
-    """Parses command line arguments."""
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Sequencing results summary.")
+
     parser.add_argument(
         "--log_level",
         help="the level to log at",
