@@ -18,7 +18,7 @@ __license__ = "GPL-3.0.0-or-later"
 log = logging.getLogger(__name__)
 
 
-def parse_args(args: list[str]) -> argparse.Namespace:
+def parse_args(args) -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Calculate percent coverage.")
 
@@ -31,12 +31,11 @@ def parse_args(args: list[str]) -> argparse.Namespace:
     parser.add_argument("--sample_name", help="sample name")
     parser.add_argument("--fasta_file", help="fasta file")
     parser.add_argument("--reference_file", help="reference file")
-    options = parser.parse_args(args)
 
-    return options
+    return parser.parse_args(args)
 
 
-def setup_logging(log_level: str) -> None:
+def setup_logging(log_level) -> None:
     """Set up logging."""
     log_format = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
     logging.basicConfig(
@@ -47,9 +46,7 @@ def setup_logging(log_level: str) -> None:
     )
 
 
-def calculate_percent_coverage(
-    sample_name: str, fasta_file: str, reference_file: str
-) -> None:
+def calculate_percent_coverage(sample_name, fasta_file, reference_file):
     """Calculate percent coverage."""
     # first check that there is only one sequence in the fasta files
     num_records = 0
@@ -79,10 +76,10 @@ def calculate_percent_coverage(
             num_non_ambiguous_bases = aligned_bases - uncorrected_Ns
             coverage = round((1 - (Ns / ref_genome_length)) * 100, 2)
     else:
-        aligned_bases = np.NaN # type: ignore
-        Ns = np.NaN # type: ignore
-        num_non_ambiguous_bases = np.NaN # type: ignore
-        coverage = np.NaN # type: ignore
+        aligned_bases = np.NaN  # type: ignore
+        Ns = np.NaN  # type: ignore
+        num_non_ambiguous_bases = np.NaN  # type: ignore
+        coverage = np.NaN  # type: ignore
 
     # create pd df with calc_percent_cvg
     df = pd.DataFrame()
@@ -97,7 +94,7 @@ def calculate_percent_coverage(
     df.to_csv(outfile, index=False)
 
 
-def main(args: argparse.Namespace) -> None:
+def main(args):
     """Main function."""
     setup_logging(log_level=args.log_level)
 

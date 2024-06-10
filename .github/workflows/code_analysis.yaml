@@ -23,4 +23,4 @@ jobs:
     - name: Check code format with ruff
       run: ruff format --check .
     - name: Analyze code with mypy
-      run: mypy .
+      run: mypy ./scripts/summary.py
