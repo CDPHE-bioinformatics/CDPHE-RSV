@@ -73,7 +73,7 @@ workflow RSV_illumina_pe_assembly {
             bam = trim_primers_ivar.trimsort_bam
     }
 
-    call post_assembly_tasks.bam_stats as bam_stats {
+    call post_assembly_tasks.calc_bam_stats_samtools as calc_bam_stats_samtools {
         input:
             sample_name = sample_name,
             bam = trim_primers_ivar.trimsort_bam,
@@ -115,10 +115,10 @@ workflow RSV_illumina_pe_assembly {
             trimsort_bamindex = trim_primers_ivar.trimsort_bamindex,
             variants = call_variants_ivar.var_out,
             consensus = call_consensus_ivar.consensus_out,
-            flagstat_out = bam_stats.flagstat_out,
-            stats_out = bam_stats.stats_out,
-            covhist_out = bam_stats.covhist_out,
-            cov_out = bam_stats.cov_out,
+            flagstat_out = calc_bam_stats_samtools.flagstat_out,
+            stats_out = calc_bam_stats_samtools.stats_out,
+            covhist_out = calc_bam_stats_samtools.covhist_out,
+            cov_out = calc_bam_stats_samtools.cov_out,
             renamed_consensus = rename_fasta.renamed_consensus
     }
 
@@ -144,10 +144,10 @@ workflow RSV_illumina_pe_assembly {
 
         File consensus = call_consensus_ivar.consensus_out
 
-        File flagstat_out = bam_stats.flagstat_out
-        File stats_out = bam_stats.stats_out
-        File covhist_out = bam_stats.covhist_out
-        File cov_out = bam_stats.cov_out
+        File flagstat_out = calc_bam_stats_samtools.flagstat_out
+        File stats_out = calc_bam_stats_samtools.stats_out
+        File covhist_out = calc_bam_stats_samtools.covhist_out
+        File cov_out = calc_bam_stats_samtools.cov_out
 
         File renamed_consensus = rename_fasta.renamed_consensus
 
