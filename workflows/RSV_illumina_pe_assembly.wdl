@@ -10,7 +10,7 @@ workflow RSV_illumina_pe_assembly {
         String sample_name
         File fastq_1
         File fastq_2
-        File adapters_and_contaminants
+        File contam_fasta
         String out_dir
 
         String organism # for subtype
@@ -31,7 +31,7 @@ workflow RSV_illumina_pe_assembly {
 
     call preprocess_tasks.filter_reads_seqyclean as filter_reads_seqyclean {
         input:
-            contam = adapters_and_contaminants,
+            contam = contam_fasta,
             sample_name = sample_name,
             fastq_1 = fastq_1,
             fastq_2 = fastq_2
