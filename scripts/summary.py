@@ -4,11 +4,11 @@
 
 import argparse
 import logging
-import pandas as pd
 import re
 import sys
-
 from datetime import date
+
+import pandas as pd
 
 __author__ = "CDPHE"
 __copyright__ = "State of Colorado"

@@ -58,7 +58,7 @@ task results_table {
     }
 
     command <<<
-        python ~{concat_seq_results_py} \
+        python3 ~{concat_seq_results_py} \
             --sample_name_array "~{write_lines(sample_name)}" \
             --workbook_path "~{workbook_path}" \
             --cov_out_files "~{write_lines(cov_out)}" \
@@ -74,7 +74,7 @@ task results_table {
     }
 
     runtime {
-        docker: "mchether/py3-bio:v2"
+        docker: "biocontainers/pandas:1.5.1_cv1"
         memory: "16 GB"
         cpu:    4
         disks: "local-disk 100 SSD"
