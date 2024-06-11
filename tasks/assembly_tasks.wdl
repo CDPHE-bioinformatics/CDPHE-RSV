@@ -1,75 +1,88 @@
 version 1.0
 
-task transfer_outputs {
-    meta {
-        description: "Transfers files generated in the assembly workflow."
-    }
-
+task trim_primers_ivar {
     input {
-        String out_dir
-
-        File filtered_reads_1
-        File filtered_reads_2
-        File seqyclean_summary
-
-        File fastqc_raw1_html
-        File fastqc_raw1_zip
-        File fastqc_raw2_html
-        File fastqc_raw2_zip
-
-        File trimsort_bam
-        File trimsort_bamindex
-
-        File variants
-
-        File consensus
-
-        File flagstat_out
-        File stats_out
-        File covhist_out
-        File cov_out
-
-        File renamed_consensus
+        File primers
+        File bam
+        String sample_name
     }
 
-    String out_dir_path = sub('${out_dir}', "/$", "") # remove trailing slash
-
-    command <<<
-        gsutil -m cp ~{filtered_reads_1} ~{out_dir_path}/seqyclean/
-        gsutil -m cp ~{filtered_reads_2} ~{out_dir_path}/seqyclean/
-        gsutil -m cp ~{seqyclean_summary} ~{out_dir_path}/seqyclean/
-                       
-        gsutil -m cp ~{fastqc_raw1_html} ~{out_dir_path}/fastqc/
-        gsutil -m cp ~{fastqc_raw1_zip} ~{out_dir_path}/fastqc/
-        gsutil -m cp ~{fastqc_raw2_html} ~{out_dir_path}/fastqc/
-        gsutil -m cp ~{fastqc_raw2_zip} ~{out_dir_path}/fastqc/
-                       
-        gsutil -m cp ~{trimsort_bam} ~{out_dir_path}/alignments/
-        gsutil -m cp ~{trimsort_bamindex} ~{out_dir_path}/alignments/
-                       
-        gsutil -m cp ~{variants} ~{out_dir_path}/variants/
-                       
-        gsutil -m cp ~{consensus} ~{out_dir_path}/assemblies/
-                       
-        gsutil -m cp ~{flagstat_out} ~{out_dir_path}/bam_stats/
-        gsutil -m cp ~{stats_out} ~{out_dir_path}/bam_stats/
-        gsutil -m cp ~{covhist_out} ~{out_dir_path}/bam_stats/
-        gsutil -m cp ~{cov_out} ~{out_dir_path}/bam_stats/
-                       
-        gsutil -m cp ~{renamed_consensus} ~{out_dir_path}/assemblies/
-                       
-        TRANSFER_DATE=$(date)
-        echo "$TRANSFER_DATE" | tee TRANSFER_DATE
-    >>>
+    command {
+        ivar trim -e -i ${bam} -b ${primers} -p ${sample_name}_trim.bam
+        samtools sort ${sample_name}_trim.bam -o ${sample_name}_trim.sort.bam
+        samtools index ${sample_name}_trim.sort.bam
+    }
 
     output {
-        String transfer_date = read_string("TRANSFER_DATE")
+        File trim_bam = "${sample_name}_trim.bam"
+        File trimsort_bam = "${sample_name}_trim.sort.bam"
+        File trimsort_bamindex = "${sample_name}_trim.sort.bam.bai"
     }
 
     runtime {
-        docker: "theiagen/utility:1.0"
-        memory: "2 GB"
-        cpu: 4
-        disks: "local-disk 100 SSD"
+        cpu: 2
+        memory: "8 GiB"
+        disks: "local-disk 1 HDD"
+        bootDiskSizeGb: 10
+        preemptible: 0
+        maxRetries: 0
+        docker: "andersenlabapps/ivar:1.3.1"
+    }
+}
+
+task call_variants_ivar {
+    input {
+        String sample_name
+        File ref
+        File gff
+        File bam
+    }
+
+    command {
+        samtools faidx ${ref}
+        samtools mpileup -A -aa -d 600000 -B -Q 20 -q 20 -f ${ref} ${bam} | \
+        ivar variants -p ${sample_name}_variants -q 20 -t 0.6 -m 10 -r ${ref} -g ${gff}
+    }
+
+    output {
+        File var_out = "${sample_name}_variants.tsv"
+    }
+
+    runtime {
+        cpu: 2
+        memory: "8 GiB"
+        disks: "local-disk 1 HDD"
+        bootDiskSizeGb: 10
+        preemptible: 0
+        maxRetries: 0
+        docker: "andersenlabapps/ivar:1.3.1"
+    }
+}
+
+task call_consensus_ivar {
+    input {
+        String sample_name
+        File ref
+        File bam
+    }
+
+    command {
+        samtools faidx ${ref}
+        samtools mpileup -A -aa -d 600000 -B -Q 20 -q 20 -f ${ref} ${bam} | \
+        ivar consensus -p ${sample_name}_consensus -q 20 -t 0.6 -m 10
+    }
+
+    output {
+        File consensus_out = "${sample_name}_consensus.fa"
+    }
+
+    runtime {
+        cpu: 2
+        memory: "8 GiB"
+        disks: "local-disk 1 HDD"
+        bootDiskSizeGb: 10
+        preemptible: 0
+        maxRetries: 0
+        docker: "andersenlabapps/ivar:1.3.1"
     }
 }

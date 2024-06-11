@@ -1,9 +1,8 @@
 version 1.0
 
-import "../tasks/preprocess_tasks.wdl"
-import "../tasks/ivar_tasks.wdl"
+import "../tasks/pre_assembly_tasks.wdl"
+import "../tasks/assembly_tasks.wdl"
 import "../tasks/post_assembly_tasks.wdl"
-import "../tasks/transfer_tasks.wdl"
 
 workflow RSV_illumina_pe_assembly {
     input {
@@ -29,7 +28,7 @@ workflow RSV_illumina_pe_assembly {
     File ref_genome = if organism == "RSV A" then rsv_a_genome else rsv_b_genome
     File ref_gff = if organism == "RSV A" then rsv_a_gff else rsv_b_gff
 
-    call preprocess_tasks.filter_reads_seqyclean as filter_reads_seqyclean {
+    call pre_assembly_tasks.filter_reads_seqyclean as filter_reads_seqyclean {
         input:
             contam = contam_fasta,
             sample_name = sample_name,
@@ -37,13 +36,13 @@ workflow RSV_illumina_pe_assembly {
             fastq_2 = fastq_2
     }
 
-    call preprocess_tasks.assess_quality_fastqc as assess_quality_fastqc {
+    call pre_assembly_tasks.assess_quality_fastqc as assess_quality_fastqc {
         input:
            fastq_1 = fastq_1,
            fastq_2 = fastq_2
     }
 
-    call preprocess_tasks.align_reads_bwa as align_reads_bwa {
+    call pre_assembly_tasks.align_reads_bwa as align_reads_bwa {
         input:
             sample_name = sample_name,
             ref = ref_genome,
@@ -51,14 +50,14 @@ workflow RSV_illumina_pe_assembly {
             fastq_2 = filter_reads_seqyclean.cleaned_2
     }
 
-    call ivar_tasks.trim_primers_ivar as trim_primers_ivar {
+    call assembly_tasks.trim_primers_ivar as trim_primers_ivar {
         input:
             sample_name = sample_name,
             primers = primer_bed,
             bam = align_reads_bwa.out_bam
     }
 
-    call ivar_tasks.call_variants_ivar as call_variants_ivar {
+    call assembly_tasks.call_variants_ivar as call_variants_ivar {
         input:
             sample_name = sample_name,
             ref = ref_genome,
@@ -66,7 +65,7 @@ workflow RSV_illumina_pe_assembly {
             bam = trim_primers_ivar.trimsort_bam
     }
 
-    call ivar_tasks.call_consensus_ivar as call_consensus_ivar {
+    call assembly_tasks.call_consensus_ivar as call_consensus_ivar {
         input:
             sample_name = sample_name,
             ref = ref_genome,
@@ -101,7 +100,7 @@ workflow RSV_illumina_pe_assembly {
             organism = organism
     }
 
-    call transfer_tasks.transfer_outputs as transfer_outputs {
+    call post_assembly_tasks.transfer_outputs as transfer_outputs {
         input:
             out_dir =  out_dir_path,
             filtered_reads_1 = filter_reads_seqyclean.cleaned_1,
