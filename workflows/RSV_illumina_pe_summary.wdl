@@ -1,7 +1,6 @@
 version 1.0
 
 import "../tasks/summary_tasks.wdl"
-import "../tasks/transfer_tasks.wdl"
 
 workflow RSV_illumina_pe_summary {
     input {
@@ -29,7 +28,7 @@ workflow RSV_illumina_pe_summary {
             renamed_consensus = select_all(renamed_consensus)
     }
 
-    call summary_tasks.results_table as results_table {
+    call summary_tasks.calc_results_table as calc_results_table {
       input:
         sample_name = sample_name,
         concat_seq_results_py = concat_seq_results_py,
@@ -41,17 +40,17 @@ workflow RSV_illumina_pe_summary {
         workbook_path = workbook_path
     }
 
-    call transfer_tasks.transfer_summary as transfer_summary {
+    call summary_tasks.transfer_outputs as transfer_outputs {
         input:
             out_dir = out_dir,
             cat_fastas = concatenate_consensus.cat_fastas,
-            sequencing_results_csv = results_table.sequencing_results_csv,
-            wgs_horizon_report_csv = results_table.wgs_horizon_report_csv
+            sequencing_results_csv = calc_results_table.sequencing_results_csv,
+            wgs_horizon_report_csv = calc_results_table.wgs_horizon_report_csv
     }
 
     output {
         File cat_fastas = concatenate_consensus.cat_fastas
-        File sequencing_results_csv = results_table.sequencing_results_csv
-        File wgs_horizon_report_csv = results_table.wgs_horizon_report_csv
+        File sequencing_results_csv = calc_results_table.sequencing_results_csv
+        File wgs_horizon_report_csv = calc_results_table.wgs_horizon_report_csv
     }
 }

@@ -21,31 +21,7 @@ task concatenate_consensus {
     }
 }
 
-task concatenate_nextclade {
-    input {
-        Array[File] nextclade_clades_csv
-        Array[File] nextclade_variants_csv
-    }
-
-    command <<<
-        awk 'FNR>1 || NR==1' ~{sep=" " nextclade_clades_csv} > concatenate_nextclade_clades.csv
-        awk 'FNR>1 || NR==1' ~{sep=" " nextclade_variants_csv} > concatenate_nextclade_variants.csv
-    >>>
-
-    output {
-        File cat_nextclade_clades_csv = "concatenate_nextclade_clades.csv"
-        File cat_nextclade_variants_csv = "concatenate_nextclade_variants.csv"
-    }
-
-    runtime {
-        docker: "ubuntu"
-        memory: "1 GB"
-        cpu:    1
-        disks: "local-disk 10 SSD"
-    }
-}
-
-task results_table {
+task calc_results_table {
     input {
         Array[String] sample_name
         File concat_seq_results_py
@@ -77,6 +53,30 @@ task results_table {
         docker: "biocontainers/pandas:1.5.1_cv1"
         memory: "16 GB"
         cpu:    4
+        disks: "local-disk 100 SSD"
+    }
+}
+
+task transfer_outputs {
+    input {
+        String out_dir
+        File cat_fastas
+        File sequencing_results_csv
+        File wgs_horizon_report_csv
+    }
+
+    String outdirpath = sub(out_dir, "/$", "")
+
+    command <<<
+        gsutil -m cp ~{cat_fastas} ~{outdirpath}/multifasta/
+        gsutil -m cp ~{sequencing_results_csv} ~{outdirpath}/summary_results/
+        gsutil -m cp ~{wgs_horizon_report_csv} ~{outdirpath}/summary_results/
+    >>>
+
+    runtime {
+        docker: "theiagen/utility:1.0"
+        memory: "16 GB"
+        cpu: 4
         disks: "local-disk 100 SSD"
     }
 }
