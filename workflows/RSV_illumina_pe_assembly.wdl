@@ -29,7 +29,7 @@ workflow RSV_illumina_pe_assembly {
     File ref_genome = if organism == "RSV A" then rsv_a_genome else rsv_b_genome
     File ref_gff = if organism == "RSV A" then rsv_a_gff else rsv_b_gff
 
-    call preprocess_tasks.seqyclean as seqyclean {
+    call preprocess_tasks.filter_reads_seqyclean as filter_reads_seqyclean {
         input:
             contam = adapters_and_contaminants,
             sample_name = sample_name,
@@ -37,25 +37,25 @@ workflow RSV_illumina_pe_assembly {
             fastq_2 = fastq_2
     }
 
-    call preprocess_tasks.fastqc as fastqc_raw {
+    call preprocess_tasks.assess_quality_fastqc as assess_quality_fastqc {
         input:
            fastq_1 = fastq_1,
            fastq_2 = fastq_2
     }
 
-    call preprocess_tasks.align_reads as align_reads {
+    call preprocess_tasks.align_reads_bwa as align_reads_bwa {
         input:
             sample_name = sample_name,
             ref = ref_genome,
-            fastq_1 = seqyclean.cleaned_1,
-            fastq_2 = seqyclean.cleaned_2
+            fastq_1 = filter_reads_seqyclean.cleaned_1,
+            fastq_2 = filter_reads_seqyclean.cleaned_2
     }
 
     call ivar_tasks.ivar_trim as ivar_trim {
         input:
             sample_name = sample_name,
             primers = primer_bed,
-            bam = align_reads.out_bam
+            bam = align_reads_bwa.out_bam
     }
 
     call ivar_tasks.ivar_var as ivar_var {
@@ -104,13 +104,13 @@ workflow RSV_illumina_pe_assembly {
     call transfer_tasks.transfer_assembly as transfer_assembly {
         input:
             out_dir =  out_dir_path,
-            filtered_reads_1 = seqyclean.cleaned_1,
-            filtered_reads_2 = seqyclean.cleaned_2,
-            seqyclean_summary = seqyclean.seqyclean_summary,
-            fastqc_raw1_html = fastqc_raw.fastqc1_html,
-            fastqc_raw1_zip = fastqc_raw.fastqc1_zip,
-            fastqc_raw2_html = fastqc_raw.fastqc2_html,
-            fastqc_raw2_zip = fastqc_raw.fastqc2_zip,
+            filtered_reads_1 = filter_reads_seqyclean.cleaned_1,
+            filtered_reads_2 = filter_reads_seqyclean.cleaned_2,
+            seqyclean_summary = filter_reads_seqyclean.seqyclean_summary,
+            fastqc_raw1_html = assess_quality_fastqc.fastqc1_html,
+            fastqc_raw1_zip = assess_quality_fastqc.fastqc1_zip,
+            fastqc_raw2_html = assess_quality_fastqc.fastqc2_html,
+            fastqc_raw2_zip = assess_quality_fastqc.fastqc2_zip,
             trimsort_bam = ivar_trim.trimsort_bam,
             trimsort_bamindex = ivar_trim.trimsort_bamindex,
             variants = ivar_var.var_out,
@@ -123,18 +123,18 @@ workflow RSV_illumina_pe_assembly {
     }
 
     output {
-        File filtered_reads_1 = seqyclean.cleaned_1
-        File filtered_reads_2 = seqyclean.cleaned_2
-        File seqyclean_summary = seqyclean.seqyclean_summary
+        File filtered_reads_1 = filter_reads_seqyclean.cleaned_1
+        File filtered_reads_2 = filter_reads_seqyclean.cleaned_2
+        File seqyclean_summary = filter_reads_seqyclean.seqyclean_summary
 
-        File fastqc_raw1_html = fastqc_raw.fastqc1_html
-        File fastqc_raw1_zip = fastqc_raw.fastqc1_zip
-        File fastqc_raw2_html = fastqc_raw.fastqc2_html
-        File fastqc_raw2_zip = fastqc_raw.fastqc2_zip
+        File fastqc_raw1_html = assess_quality_fastqc.fastqc1_html
+        File fastqc_raw1_zip = assess_quality_fastqc.fastqc1_zip
+        File fastqc_raw2_html = assess_quality_fastqc.fastqc2_html
+        File fastqc_raw2_zip = assess_quality_fastqc.fastqc2_zip
 
-        File out_bam = align_reads.out_bam
-        File out_bamindex = align_reads.out_bamindex
-        String assembler_version = align_reads.assembler_version
+        File out_bam = align_reads_bwa.out_bam
+        File out_bamindex = align_reads_bwa.out_bamindex
+        String assembler_version = align_reads_bwa.assembler_version
 
         File trim_bam = ivar_trim.trim_bam
         File trimsort_bam = ivar_trim.trimsort_bam

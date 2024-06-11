@@ -1,6 +1,6 @@
 version 1.0
 
-task seqyclean {
+task filter_reads_seqyclean {
     input {
         File contam
         String sample_name
@@ -29,7 +29,7 @@ task seqyclean {
     }
 }
 
-task fastqc {
+task assess_quality_fastqc {
     input {
         File fastq_1
         File fastq_2
@@ -60,7 +60,7 @@ task fastqc {
     }
 }
 
-task align_reads {
+task align_reads_bwa {
     input {
         File fastq_1
         File fastq_2
