@@ -51,39 +51,39 @@ workflow RSV_illumina_pe_assembly {
             fastq_2 = filter_reads_seqyclean.cleaned_2
     }
 
-    call ivar_tasks.ivar_trim as ivar_trim {
+    call ivar_tasks.trim_primers_ivar as trim_primers_ivar {
         input:
             sample_name = sample_name,
             primers = primer_bed,
             bam = align_reads_bwa.out_bam
     }
 
-    call ivar_tasks.ivar_var as ivar_var {
+    call ivar_tasks.call_variants_ivar as call_variants_ivar {
         input:
             sample_name = sample_name,
             ref = ref_genome,
             gff = ref_gff,
-            bam = ivar_trim.trimsort_bam
+            bam = trim_primers_ivar.trimsort_bam
     }
 
-    call ivar_tasks.ivar_consensus as ivar_consensus {
+    call ivar_tasks.call_consensus_ivar as call_consensus_ivar {
         input:
             sample_name = sample_name,
             ref = ref_genome,
-            bam = ivar_trim.trimsort_bam
+            bam = trim_primers_ivar.trimsort_bam
     }
 
     call post_assembly_tasks.bam_stats as bam_stats {
         input:
             sample_name = sample_name,
-            bam = ivar_trim.trimsort_bam,
-            bai = ivar_trim.trimsort_bamindex
+            bam = trim_primers_ivar.trimsort_bam,
+            bai = trim_primers_ivar.trimsort_bamindex
     }
 
     call post_assembly_tasks.rename_fasta as rename_fasta {
         input:
             sample_name = sample_name,
-            fasta = ivar_consensus.consensus_out
+            fasta = call_consensus_ivar.consensus_out
     }
 
     call post_assembly_tasks.calc_percent_cvg as calc_percent_cvg {
@@ -111,10 +111,10 @@ workflow RSV_illumina_pe_assembly {
             fastqc_raw1_zip = assess_quality_fastqc.fastqc1_zip,
             fastqc_raw2_html = assess_quality_fastqc.fastqc2_html,
             fastqc_raw2_zip = assess_quality_fastqc.fastqc2_zip,
-            trimsort_bam = ivar_trim.trimsort_bam,
-            trimsort_bamindex = ivar_trim.trimsort_bamindex,
-            variants = ivar_var.var_out,
-            consensus = ivar_consensus.consensus_out,
+            trimsort_bam = trim_primers_ivar.trimsort_bam,
+            trimsort_bamindex = trim_primers_ivar.trimsort_bamindex,
+            variants = call_variants_ivar.var_out,
+            consensus = call_consensus_ivar.consensus_out,
             flagstat_out = bam_stats.flagstat_out,
             stats_out = bam_stats.stats_out,
             covhist_out = bam_stats.covhist_out,
@@ -136,13 +136,13 @@ workflow RSV_illumina_pe_assembly {
         File out_bamindex = align_reads_bwa.out_bamindex
         String assembler_version = align_reads_bwa.assembler_version
 
-        File trim_bam = ivar_trim.trim_bam
-        File trimsort_bam = ivar_trim.trimsort_bam
-        File trimsort_bamindex = ivar_trim.trimsort_bamindex
+        File trim_bam = trim_primers_ivar.trim_bam
+        File trimsort_bam = trim_primers_ivar.trimsort_bam
+        File trimsort_bamindex = trim_primers_ivar.trimsort_bamindex
 
-        File variants = ivar_var.var_out
+        File variants = call_variants_ivar.var_out
 
-        File consensus = ivar_consensus.consensus_out
+        File consensus = call_consensus_ivar.consensus_out
 
         File flagstat_out = bam_stats.flagstat_out
         File stats_out = bam_stats.stats_out

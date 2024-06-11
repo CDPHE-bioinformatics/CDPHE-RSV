@@ -1,6 +1,6 @@
 version 1.0
 
-task ivar_trim {
+task trim_primers_ivar {
     input {
         File primers
         File bam
@@ -30,7 +30,7 @@ task ivar_trim {
     }
 }
 
-task ivar_var {
+task call_variants_ivar {
     input {
         String sample_name
         File ref
@@ -59,7 +59,7 @@ task ivar_var {
     }
 }
 
-task ivar_consensus {
+task call_consensus_ivar {
     input {
         String sample_name
         File ref
