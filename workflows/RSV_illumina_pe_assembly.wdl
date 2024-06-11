@@ -86,7 +86,7 @@ workflow RSV_illumina_pe_assembly {
             fasta = call_consensus_ivar.consensus_out
     }
 
-    call post_assembly_tasks.calc_percent_cvg as calc_percent_cvg {
+    call post_assembly_tasks.calc_percent_coverage as calc_percent_coverage {
         input:
             sample_name = sample_name,
             fasta = rename_fasta.renamed_consensus,
@@ -94,14 +94,14 @@ workflow RSV_illumina_pe_assembly {
             calc_percent_coverage_py = calc_percent_coverage_py
     }
 
-    call post_assembly_tasks.nextclade as nextclade {
+    call post_assembly_tasks.call_clades_nextclade as call_clades_nextclade {
         input:
             sample_name = sample_name,
             renamed_consensus = rename_fasta.renamed_consensus,
             organism = organism
     }
 
-    call transfer_tasks.transfer_assembly as transfer_assembly {
+    call transfer_tasks.transfer_outputs as transfer_outputs {
         input:
             out_dir =  out_dir_path,
             filtered_reads_1 = filter_reads_seqyclean.cleaned_1,
@@ -151,12 +151,12 @@ workflow RSV_illumina_pe_assembly {
 
         File renamed_consensus = rename_fasta.renamed_consensus
 
-        File percent_cvg_csv = calc_percent_cvg.percent_cvg_csv
+        File percent_cvg_csv = calc_percent_coverage.percent_cvg_csv
 
-        String nextclade_version = nextclade.nextclade_version
-        File nextclade_csv = nextclade.nextclade_csv
-        File nextclade_json = nextclade.nextclade_json
+        String nextclade_version = call_clades_nextclade.nextclade_version
+        File nextclade_csv = call_clades_nextclade.nextclade_csv
+        File nextclade_json = call_clades_nextclade.nextclade_json
 
-        String transfer_date_assembly = transfer_assembly.transfer_date
+        String transfer_date_assembly = transfer_outputs.transfer_date
     }
 }

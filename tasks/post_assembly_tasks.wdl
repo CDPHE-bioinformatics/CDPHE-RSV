@@ -1,6 +1,6 @@
 version 1.0
 
-task bam_stats {
+task calc_bam_stats_samtools {
     input {
         String sample_name
         File bam
@@ -54,7 +54,7 @@ task rename_fasta {
     }
 }
 
-task calc_percent_cvg {
+task calc_percent_coverage {
     input {
         File fasta
         String sample_name
@@ -81,7 +81,7 @@ task calc_percent_cvg {
     }
 }
 
-task nextclade {
+task call_clades_nextclade {
     input {
         String sample_name
         File renamed_consensus
