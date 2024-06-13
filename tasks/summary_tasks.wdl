@@ -21,7 +21,7 @@ task concatenate_consensus {
     }
 }
 
-task calc_results_table {
+task summarize_results {
     input {
         Array[String] sample_name
         File concat_seq_results_py
