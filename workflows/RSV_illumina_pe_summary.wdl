@@ -14,7 +14,6 @@ workflow RSV_illumina_pe_summary {
         Array[String?] assembler_version_array
         Array[File] workbook_path_array
 
-        # python scripts
         File concat_seq_results_py
     }
 
