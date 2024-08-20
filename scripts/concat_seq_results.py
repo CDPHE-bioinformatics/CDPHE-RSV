@@ -53,6 +53,7 @@ def parse_args(args: list[str]) -> argparse.Namespace:
         "--nextclade_csv_files", help="txt file with list of nextclade csv file paths"
     )
     parser.add_argument("--assembler_version")
+    parser.add_argument("--nextclade_version")
     parser.add_argument("--project_name")
 
     return parser.parse_args(args)
@@ -244,6 +245,7 @@ def make_wgs_horizon_output(
     # TODO: rename column instead of duplicate?
     results_df["platform"] = args.platform
     results_df["workflow"] = args.workflow_name
+    results_df["nextclade_version"] = args.nextclade_version
     results_df["workflow_version"] = args.workflow_version
     results_df["WGS_type"] = results_df["organism"].str.split().str[1]
     results_df["WGS_clade_nextclade"] = results_df["clade"]
@@ -259,6 +261,7 @@ def make_wgs_horizon_output(
         "workflow_version",
         "WGS_type",
         "WGS_clade_nextclade",
+        "nextclade_version",
         "percent_coverage",
         "mean_depth",
     ]
