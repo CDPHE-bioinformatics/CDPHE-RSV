@@ -23,6 +23,7 @@ task concatenate_consensus {
 
 task summarize_results {
     input {
+        String workflow_version
         Array[String] sample_name
         File concat_seq_results_py
         Array[File] cov_out
@@ -35,6 +36,7 @@ task summarize_results {
 
     command <<<
         python3 ~{concat_seq_results_py} \
+            --workflow_version "~{workflow_version}" \
             --sample_name_array "~{write_lines(sample_name)}" \
             --workbook_path "~{workbook_path}" \
             --cov_out_files "~{write_lines(cov_out)}" \

@@ -27,6 +27,22 @@ def parse_args(args: list[str]) -> argparse.Namespace:
         choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
         default="INFO",
     )
+    parser.add_argument(
+        "--workflow_name",
+        help="the workflow name (i.e. what is on GitHub)",
+        default="CDPHE-RSV",
+    )
+    parser.add_argument(
+        "--workflow_version",
+        help="the workflow version (i.e. what is on GitHub)",
+        required=True,
+    )
+    parser.add_argument(
+        "--platform",
+        help="the sequencing platform",
+        choices=["illumina", "ont"],
+        default="illumina",
+    )
     parser.add_argument("--sample_name_array")
     parser.add_argument("--workbook_path")
     parser.add_argument("--cov_out_files", help="txt file with list of bam file paths")
@@ -220,15 +236,40 @@ def concat_results(
     return j
 
 
-def make_wgs_horizon_output(results_df: pd.DataFrame, project_name: str) -> None:
+def make_wgs_horizon_output(results_df: pd.DataFrame, project_name: str, args: argparse.Namespace) -> None:
     """Make wgs horizon report."""
-    results_df["report_to_epi"] = ""
-    results_df["Run_Date"] = str(date.today())
+    # TODO: incorporate needed template requirements
+    required_columns = [
+        "hsn",
+        "project_name",
+        "platform",
+        "run_date",
+        "analysis_date",
+        "workflow",
+        "workflow_version",
+        "WGS_type",
+        "WGS_clade_nextclade",
+        "nextclade_version",
+        "percent_coverage",
+        "mean_depth",
+    ]
 
-    # rename columns
-    results_df = results_df.rename(columns={"hsn": "accession_id"})
+    results_df["platform"] = args.platform
+    results_df["workflow"] = args.workflow_name
+    results_df["workflow_version"] = args.workflow_version
+    results_df["analysis_date"] = str(date.today())
 
-    col_order = ["accession_id", "percent_coverage", "report_to_epi", "Run_Date"]
+    col_order = [
+        "hsn",
+        "project_name",
+        "platform",
+        "run_date",
+        "analysis_date",
+        "workflow",
+        "workflow_version",
+        "percent_coverage",
+        "mean_depth",
+    ]
 
     results_df = results_df[col_order]
 
@@ -280,7 +321,7 @@ def main(args: argparse.Namespace) -> None:
     )
 
     # create wgs horizon output
-    make_wgs_horizon_output(project_name=project_name, results_df=results_df)
+    make_wgs_horizon_output(results_df=results_df, project_name=project_name, args=args)
 
     log.info("Sequencing results summary end.")
 

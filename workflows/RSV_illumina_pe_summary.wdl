@@ -17,6 +17,7 @@ workflow RSV_illumina_pe_summary {
         File concat_seq_results_py
     }
 
+    String workflow_version = "v0.0.0"
     String project_name = project_name_array[0]
     File workbook_path = workbook_path_array[0]
     String assembler_version = select_all(assembler_version_array)[0]
@@ -29,6 +30,7 @@ workflow RSV_illumina_pe_summary {
 
     call summary_tasks.summarize_results as summarize_results {
       input:
+        workflow_version = workflow_version,
         sample_name = sample_name,
         concat_seq_results_py = concat_seq_results_py,
         nextclade_csv = select_all(nextclade_csv),
