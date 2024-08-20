@@ -236,27 +236,17 @@ def concat_results(
     return j
 
 
-def make_wgs_horizon_output(results_df: pd.DataFrame, project_name: str, args: argparse.Namespace) -> None:
+def make_wgs_horizon_output(
+    results_df: pd.DataFrame, project_name: str, args: argparse.Namespace
+) -> None:
     """Make wgs horizon report."""
-    # TODO: incorporate needed template requirements
-    required_columns = [
-        "hsn",
-        "project_name",
-        "platform",
-        "run_date",
-        "analysis_date",
-        "workflow",
-        "workflow_version",
-        "WGS_type",
-        "WGS_clade_nextclade",
-        "nextclade_version",
-        "percent_coverage",
-        "mean_depth",
-    ]
-
+    # TODO: add nextclade version to col_order
+    # TODO: rename column instead of duplicate?
     results_df["platform"] = args.platform
     results_df["workflow"] = args.workflow_name
     results_df["workflow_version"] = args.workflow_version
+    results_df["WGS_type"] = results_df["organism"].str.split().str[1]
+    results_df["WGS_clade_nextclade"] = results_df["clade"]
     results_df["analysis_date"] = str(date.today())
 
     col_order = [
@@ -267,6 +257,8 @@ def make_wgs_horizon_output(results_df: pd.DataFrame, project_name: str, args: a
         "analysis_date",
         "workflow",
         "workflow_version",
+        "WGS_type",
+        "WGS_clade_nextclade",
         "percent_coverage",
         "mean_depth",
     ]
