@@ -249,6 +249,7 @@ def make_wgs_horizon_output(
     results_df["workflow_version"] = args.workflow_version
     results_df["WGS_type"] = results_df["organism"].str.split().str[1]
     results_df["WGS_clade_nextclade"] = results_df["clade"]
+    results_df["WGS_Gclade_nextclade"] = results_df["G_clade"]
     results_df["analysis_date"] = str(date.today())
 
     col_order = [
@@ -261,6 +262,7 @@ def make_wgs_horizon_output(
         "workflow_version",
         "WGS_type",
         "WGS_clade_nextclade",
+        "WGS_Gclade_nextclade",
         "nextclade_version",
         "percent_coverage",
         "mean_depth",
