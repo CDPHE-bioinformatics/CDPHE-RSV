@@ -4,9 +4,6 @@ workflows:
   - name: RSV_illumina_pe_assembly
     subclass: WDL
     primaryDescriptorPath: /workflows/RSV_illumina_pe_assembly.wdl
-  - name: RSV_illumina_pe_transfer
-    subclass: WDL
-    primaryDescriptorPath: /workflows/RSV_illumina_pe_transfer.wdl
   - name: RSV_illumina_pe_summary
     subclass: WDL
     primaryDescriptorPath: /workflows/RSV_illumina_pe_summary.wdl
