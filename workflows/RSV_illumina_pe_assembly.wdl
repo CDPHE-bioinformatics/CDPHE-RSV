@@ -3,6 +3,7 @@ version 1.0
 import "../tasks/pre_assembly_tasks.wdl"
 import "../tasks/assembly_tasks.wdl"
 import "../tasks/post_assembly_tasks.wdl"
+import "../tasks/version_capture_tasks.wdl"
 
 workflow RSV_illumina_pe_assembly {
     input {
@@ -27,6 +28,10 @@ workflow RSV_illumina_pe_assembly {
     File primer_bed = if organism == "RSV A" then rsv_a_primer_bed else rsv_b_primer_bed
     File ref_genome = if organism == "RSV A" then rsv_a_genome else rsv_b_genome
     File ref_gff = if organism == "RSV A" then rsv_a_gff else rsv_b_gff
+
+    call version_capture_tasks.workflow_version_capture {
+        input:
+    }
 
     call pre_assembly_tasks.filter_reads_seqyclean as filter_reads_seqyclean {
         input:
@@ -122,6 +127,8 @@ workflow RSV_illumina_pe_assembly {
     }
 
     output {
+        String workflow_version = workflow_version_capture.workflow_version
+
         File filtered_reads_1 = filter_reads_seqyclean.cleaned_1
         File filtered_reads_2 = filter_reads_seqyclean.cleaned_2
         File seqyclean_summary = filter_reads_seqyclean.seqyclean_summary

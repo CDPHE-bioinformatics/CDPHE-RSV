@@ -1,6 +1,7 @@
 version 1.0
 
 import "../tasks/summary_tasks.wdl"
+import "../tasks/version_capture_tasks.wdl"
 
 workflow RSV_illumina_pe_summary {
     input {
@@ -18,12 +19,15 @@ workflow RSV_illumina_pe_summary {
         File concat_seq_results_py
     }
 
-    String workflow_version = "v0.0.0"
     String project_name = project_name_array[0]
     File workbook_path = workbook_path_array[0]
     String assembler_version = select_all(assembler_version_array)[0]
     String nextclade_version = select_all(nextclade_version_array)[0]
     String out_dir = out_dir_array[0]
+
+    call version_capture_tasks.workflow_version_capture {
+        input:
+    }
 
     call summary_tasks.concatenate_consensus as concatenate_consensus {
         input:
@@ -32,7 +36,7 @@ workflow RSV_illumina_pe_summary {
 
     call summary_tasks.summarize_results as summarize_results {
       input:
-        workflow_version = workflow_version,
+        workflow_version = workflow_version_capture.workflow_version,
         sample_name = sample_name,
         concat_seq_results_py = concat_seq_results_py,
         nextclade_version = nextclade_version,
@@ -53,7 +57,10 @@ workflow RSV_illumina_pe_summary {
     }
 
     output {
+        String workflow_version = workflow_version_capture.workflow_version
+
         File cat_fastas = concatenate_consensus.cat_fastas
+
         File sequencing_results_csv = summarize_results.sequencing_results_csv
         File wgs_horizon_report_csv = summarize_results.wgs_horizon_report_csv
     }
