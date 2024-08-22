@@ -19,12 +19,9 @@ task filter_reads_seqyclean {
     }
 
     runtime {
-        cpu: 2
-        memory: "6 GiB"
+        cpu: 1
+        memory: "1G"
         disks: "local-disk 1 HDD"
-        bootDiskSizeGb: 10
-        preemptible: 0
-        maxRetries: 0
         docker: "staphb/seqyclean:1.10.09"
     }
 }
@@ -51,11 +48,8 @@ task assess_quality_fastqc {
 
     runtime {
         cpu: 1
-        memory: "2 GiB"
+        memory: "1G"
         disks: "local-disk 1 HDD"
-        bootDiskSizeGb: 10
-        preemptible: 0
-        maxRetries: 0
         docker: "staphb/fastqc:0.11.9"
     }
 }
@@ -85,12 +79,9 @@ task align_reads_bwa {
     }
 
     runtime {
-        cpu:    2
-        memory:    "12 GiB"
-        disks:    "local-disk 1 HDD"
-        bootDiskSizeGb:    10
-        preemptible:    0
-        maxRetries:    0
-        docker:    "broadinstitute/viral-core:latest"
+        cpu: 2
+        memory: "2G"
+        disks: "local-disk 2 HDD"
+        docker: "broadinstitute/viral-core:latest"
     }
 }

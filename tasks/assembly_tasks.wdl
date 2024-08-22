@@ -20,12 +20,9 @@ task trim_primers_ivar {
     }
 
     runtime {
-        cpu: 2
-        memory: "8 GiB"
+        cpu: 1
+        memory: "1G"
         disks: "local-disk 1 HDD"
-        bootDiskSizeGb: 10
-        preemptible: 0
-        maxRetries: 0
         docker: "andersenlabapps/ivar:1.3.1"
     }
 }
@@ -49,12 +46,9 @@ task call_variants_ivar {
     }
 
     runtime {
-        cpu: 2
-        memory: "8 GiB"
+        cpu: 1
+        memory: "1G"
         disks: "local-disk 1 HDD"
-        bootDiskSizeGb: 10
-        preemptible: 0
-        maxRetries: 0
         docker: "andersenlabapps/ivar:1.3.1"
     }
 }
@@ -77,12 +71,9 @@ task call_consensus_ivar {
     }
 
     runtime {
-        cpu: 2
-        memory: "8 GiB"
+        cpu: 1
+        memory: "1G"
         disks: "local-disk 1 HDD"
-        bootDiskSizeGb: 10
-        preemptible: 0
-        maxRetries: 0
         docker: "andersenlabapps/ivar:1.3.1"
     }
 }

@@ -14,10 +14,10 @@ task concatenate_consensus {
     }
 
     runtime {
-        docker: "ubuntu"
-        memory: "1 GB"
-        cpu:    1
-        disks: "local-disk 10 SSD"
+        cpu: 1
+        memory: "2G"
+        disks: "local-disk 4 HDD"
+        docker: "ubuntu:focal"
     }
 }
 
@@ -54,10 +54,10 @@ task summarize_results {
     }
 
     runtime {
+        cpu: 1
+        memory: "2G"
+        disks: "local-disk 4 HDD"
         docker: "biocontainers/pandas:1.5.1_cv1"
-        memory: "16 GB"
-        cpu:    4
-        disks: "local-disk 100 SSD"
     }
 }
 
@@ -78,9 +78,9 @@ task transfer_outputs {
     >>>
 
     runtime {
+        cpu: 2
+        memory: "2G"
+        disks: "local-disk 4 HDD"
         docker: "theiagen/utility:1.0"
-        memory: "16 GB"
-        cpu: 4
-        disks: "local-disk 100 SSD"
     }
 }

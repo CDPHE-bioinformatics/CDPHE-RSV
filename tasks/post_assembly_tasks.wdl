@@ -22,12 +22,9 @@ task calc_bam_stats_samtools {
     }
 
     runtime {
-        cpu: 2
-        memory: "8 GiB"
+        cpu: 1
+        memory: "1G"
         disks: "local-disk 1 HDD"
-        bootDiskSizeGb: 10
-        preemptible: 0
-        maxRetries: 0
         docker: "staphb/samtools:1.16"
     }
 }
@@ -47,10 +44,10 @@ task rename_fasta {
     }
 
     runtime {
-        docker: "theiagen/utility:1.0"
-        memory: "1 GB"
         cpu: 1
-        disks: "local-disk 10 SSD"
+        memory: "1G"
+        disks: "local-disk 1 HDD"
+        docker: "theiagen/utility:1.0"
     }
 }
 
@@ -74,10 +71,10 @@ task calc_percent_coverage {
     }
 
     runtime {
+        cpu: 1
+        memory: "1G"
+        disks: "local-disk 1 HDD"
         docker: "mchether/py3-bio:v1"
-        memory: "1 GB"
-        cpu: 4
-        disks: "local-disk 10 SSD"
     }
 }
 
@@ -106,10 +103,10 @@ task call_clades_nextclade {
     }
 
     runtime {
-        docker: "nextstrain/nextclade:2.14.0"
-        memory: "16GB"
         cpu: 4
-        disks: "local-disk 50 HDD"
+        memory: "8G"
+        disks: "local-disk 10 HDD"
+        docker: "nextstrain/nextclade:2.14.0"
     }
 }
 
@@ -133,10 +130,10 @@ task parse_nextclade {
     }
 
     runtime {
+        cpu: 1
+        memory: "1G"
+        disks: "local-disk 1 HDD"
         docker: "mchether/py3-bio:v2"
-        memory: "16 GB"
-        cpu:    4
-        disks: "local-disk 375 LOCAL"
     }
 }
 
@@ -207,9 +204,9 @@ task transfer_outputs {
     }
 
     runtime {
+        cpu: 2
+        memory: "2G"
+        disks: "local-disk 4 HDD"
         docker: "theiagen/utility:1.0"
-        memory: "2 GB"
-        cpu: 4
-        disks: "local-disk 100 SSD"
     }
 }

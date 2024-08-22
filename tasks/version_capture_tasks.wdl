@@ -25,8 +25,9 @@ task workflow_version_capture {
         String workflow_version = read_string("WORKFLOW_VERSION")
     }
     runtime {
-        memory: "512 MiB"
         cpu: 1
+        memory: "1G"
+        disks: "local-disk 1 HDD"
         docker: "ubuntu:focal"
     }
 }
