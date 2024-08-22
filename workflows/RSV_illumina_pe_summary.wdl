@@ -50,7 +50,7 @@ workflow RSV_illumina_pe_summary {
 
     call summary_tasks.transfer_outputs as transfer_outputs {
         input:
-            out_dir = out_dir,
+            out_dir = "~{out_dir}/~{workflow_version_capture.workflow_version_path}",
             cat_fastas = concatenate_consensus.cat_fastas,
             sequencing_results_csv = summarize_results.sequencing_results_csv,
             wgs_horizon_report_csv = summarize_results.wgs_horizon_report_csv
