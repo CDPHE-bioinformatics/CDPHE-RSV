@@ -110,33 +110,6 @@ task call_clades_nextclade {
     }
 }
 
-task parse_nextclade {
-    input {
-        String project_name
-        String sample_name
-        File nextclade_json_parser_py
-        File nextclade_json
-    }
-
-    command <<<
-        python ~{nextclade_json_parser_py} \
-            --nextclade_json ~{nextclade_json} \
-            --project_name ~{project_name}
-    >>>
-
-    output {
-        File nextclade_clades_csv = '${project_name}_${sample_name}_nextclade_results.csv'
-        File nextclade_variants_csv = '${project_name}_${sample_name}_nextclade_variant_summary.csv' 
-    }
-
-    runtime {
-        cpu: 1
-        memory: "1G"
-        disks: "local-disk 1 HDD"
-        docker: "mchether/py3-bio:v2"
-    }
-}
-
 task transfer_outputs {
     meta {
         description: "Transfers files generated in the assembly workflow."
