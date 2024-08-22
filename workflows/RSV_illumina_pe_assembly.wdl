@@ -27,6 +27,7 @@ workflow RSV_illumina_pe_assembly {
     File primer_bed = if organism == "RSV A" then rsv_a_primer_bed else rsv_b_primer_bed
     File ref_genome = if organism == "RSV A" then rsv_a_genome else rsv_b_genome
     File ref_gff = if organism == "RSV A" then rsv_a_gff else rsv_b_gff
+    String out_dir_path = sub(out_dir, "/$", "") # remove trailing slash
 
     call version_capture_tasks.workflow_version_capture {
         input:
@@ -106,7 +107,7 @@ workflow RSV_illumina_pe_assembly {
 
     call post_assembly_tasks.transfer_outputs as transfer_outputs {
         input:
-            out_dir = "~{out_dir}/~{workflow_version_capture.workflow_version_path}",
+            out_dir = "~{out_dir_path}/~{workflow_version_capture.workflow_version_path}",
             filtered_reads_1 = filter_reads.cleaned_1,
             filtered_reads_2 = filter_reads.cleaned_2,
             seqyclean_summary = filter_reads.seqyclean_summary,

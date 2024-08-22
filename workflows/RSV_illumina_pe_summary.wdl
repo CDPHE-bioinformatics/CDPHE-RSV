@@ -23,7 +23,7 @@ workflow RSV_illumina_pe_summary {
     File workbook_path = workbook_path_array[0]
     String assembler_version = select_all(assembler_version_array)[0]
     String nextclade_version = select_all(nextclade_version_array)[0]
-    String out_dir = out_dir_array[0]
+    String out_dir_path = sub(out_dir_array[0], "/$", "") # remove trailing slash
 
     call version_capture_tasks.workflow_version_capture {
         input:
@@ -50,7 +50,7 @@ workflow RSV_illumina_pe_summary {
 
     call summary_tasks.transfer_outputs as transfer_outputs {
         input:
-            out_dir = "~{out_dir}/~{workflow_version_capture.workflow_version_path}",
+            out_dir = "~{out_dir_path}/~{workflow_version_capture.workflow_version_path}",
             cat_fastas = concatenate_consensus.cat_fastas,
             sequencing_results_csv = summarize_results.sequencing_results_csv,
             wgs_horizon_report_csv = summarize_results.wgs_horizon_report_csv

@@ -143,7 +143,7 @@ task transfer_outputs {
         File renamed_consensus
     }
 
-    String out_dir_path = sub('${out_dir}', "/$", "") # remove trailing slash
+    String out_dir_path = sub(out_dir, "/$", "") # remove trailing slash
 
     command <<<
         gsutil -m cp ~{filtered_reads_1} ~{out_dir_path}/seqyclean/
