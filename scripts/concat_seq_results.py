@@ -241,8 +241,6 @@ def make_wgs_horizon_output(
     results_df: pd.DataFrame, project_name: str, args: argparse.Namespace
 ) -> None:
     """Make wgs horizon report."""
-    # TODO: add nextclade version to col_order
-    # TODO: rename column instead of duplicate?
     results_df["platform"] = args.platform
     results_df["workflow"] = args.workflow_name
     results_df["nextclade_version"] = args.nextclade_version

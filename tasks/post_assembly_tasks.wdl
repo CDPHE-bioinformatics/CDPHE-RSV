@@ -92,7 +92,8 @@ task call_clades_nextclade {
         nextclade dataset get --name ~{organism_id} \
             --output-dir /data/~{organism_id}
         nextclade run --input-dataset /data/~{organism_id} \
-            --output-json ~{sample_name}_nextclade.json --output-csv ~{sample_name}_nextclade.csv \
+            --output-json ~{sample_name}_nextclade.json \
+            --output-csv ~{sample_name}_nextclade.csv \
             ~{renamed_consensus}
     >>>
 
@@ -106,7 +107,7 @@ task call_clades_nextclade {
         cpu: 4
         memory: "8G"
         disks: "local-disk 10 HDD"
-        docker: "nextstrain/nextclade:2.14.0"
+        docker: "nextstrain/nextclade:3.8.2"
     }
 }
 
