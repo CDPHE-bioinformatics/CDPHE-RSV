@@ -19,7 +19,7 @@ task workflow_version_capture {
         description: "capture version release"
     }
     command <<<
-        echo "v0.1.0" > WORKFLOW_VERSION
+        echo "v0.2.0" > WORKFLOW_VERSION
     >>>
     output {
         String workflow_version = read_string("WORKFLOW_VERSION")
