@@ -19,14 +19,16 @@ task workflow_version_capture {
         description: "capture version release"
     }
     command <<<
-        echo "v0.1.0" > WORKFLOW_VERSION
+        echo "v0.2.0" > WORKFLOW_VERSION
     >>>
     output {
         String workflow_version = read_string("WORKFLOW_VERSION")
+        String workflow_version_path = sub(workflow_version, "\\.", "_")
     }
     runtime {
-        memory: "512 MiB"
         cpu: 1
+        memory: "1G"
+        disks: "local-disk 1 HDD"
         docker: "ubuntu:focal"
     }
 }

@@ -22,12 +22,9 @@ task calc_bam_stats_samtools {
     }
 
     runtime {
-        cpu: 2
-        memory: "8 GiB"
+        cpu: 1
+        memory: "1G"
         disks: "local-disk 1 HDD"
-        bootDiskSizeGb: 10
-        preemptible: 0
-        maxRetries: 0
         docker: "staphb/samtools:1.16"
     }
 }
@@ -47,10 +44,10 @@ task rename_fasta {
     }
 
     runtime {
-        docker: "theiagen/utility:1.0"
-        memory: "1 GB"
         cpu: 1
-        disks: "local-disk 10 SSD"
+        memory: "1G"
+        disks: "local-disk 1 HDD"
+        docker: "theiagen/utility:1.0"
     }
 }
 
@@ -74,10 +71,10 @@ task calc_percent_coverage {
     }
 
     runtime {
+        cpu: 1
+        memory: "1G"
+        disks: "local-disk 1 HDD"
         docker: "mchether/py3-bio:v1"
-        memory: "1 GB"
-        cpu: 4
-        disks: "local-disk 10 SSD"
     }
 }
 
@@ -95,7 +92,8 @@ task call_clades_nextclade {
         nextclade dataset get --name ~{organism_id} \
             --output-dir /data/~{organism_id}
         nextclade run --input-dataset /data/~{organism_id} \
-            --output-json ~{sample_name}_nextclade.json --output-csv ~{sample_name}_nextclade.csv \
+            --output-json ~{sample_name}_nextclade.json \
+            --output-csv ~{sample_name}_nextclade.csv \
             ~{renamed_consensus}
     >>>
 
@@ -106,37 +104,10 @@ task call_clades_nextclade {
     }
 
     runtime {
-        docker: "nextstrain/nextclade:2.14.0"
-        memory: "16GB"
         cpu: 4
-        disks: "local-disk 50 HDD"
-    }
-}
-
-task parse_nextclade {
-    input {
-        String project_name
-        String sample_name
-        File nextclade_json_parser_py
-        File nextclade_json
-    }
-
-    command <<<
-        python ~{nextclade_json_parser_py} \
-            --nextclade_json ~{nextclade_json} \
-            --project_name ~{project_name}
-    >>>
-
-    output {
-        File nextclade_clades_csv = '${project_name}_${sample_name}_nextclade_results.csv'
-        File nextclade_variants_csv = '${project_name}_${sample_name}_nextclade_variant_summary.csv' 
-    }
-
-    runtime {
-        docker: "mchether/py3-bio:v2"
-        memory: "16 GB"
-        cpu:    4
-        disks: "local-disk 375 LOCAL"
+        memory: "8G"
+        disks: "local-disk 10 HDD"
+        docker: "nextstrain/nextclade:3.8.2"
     }
 }
 
@@ -172,7 +143,7 @@ task transfer_outputs {
         File renamed_consensus
     }
 
-    String out_dir_path = sub('${out_dir}', "/$", "") # remove trailing slash
+    String out_dir_path = sub(out_dir, "/$", "") # remove trailing slash
 
     command <<<
         gsutil -m cp ~{filtered_reads_1} ~{out_dir_path}/seqyclean/
@@ -207,9 +178,9 @@ task transfer_outputs {
     }
 
     runtime {
+        cpu: 2
+        memory: "2G"
+        disks: "local-disk 4 HDD"
         docker: "theiagen/utility:1.0"
-        memory: "2 GB"
-        cpu: 4
-        disks: "local-disk 100 SSD"
     }
 }
