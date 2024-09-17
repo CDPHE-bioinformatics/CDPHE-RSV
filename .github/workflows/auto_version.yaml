@@ -34,7 +34,7 @@ jobs:
         git config user.email "<>"
     - name: commit bumped version
       run: |
-        git add src/main.py
+        git add tasks/version_capture_tasks.wdl
         git commit -m "Auto bump version"
         git push origin main
     - name: bump version with tag-action
