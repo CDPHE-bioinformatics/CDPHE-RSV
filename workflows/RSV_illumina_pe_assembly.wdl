@@ -15,18 +15,18 @@ workflow RSV_illumina_pe_assembly {
 
         String organism # for subtype
         File rsv_a_primer_bed
-        File rsv_a_genome
-        File rsv_a_gff
+        File rsv_a_ref_fasta
+        File rsv_a_ref_gff
         File rsv_b_primer_bed
-        File rsv_b_genome
-        File rsv_b_gff
+        File rsv_b_ref_fasta
+        File rsv_b_ref_gff
 
         File calc_percent_coverage_py
     }
 
     File primer_bed = if organism == "RSV A" then rsv_a_primer_bed else rsv_b_primer_bed
-    File ref_genome = if organism == "RSV A" then rsv_a_genome else rsv_b_genome
-    File ref_gff = if organism == "RSV A" then rsv_a_gff else rsv_b_gff
+    File ref_genome = if organism == "RSV A" then rsv_a_ref_fasta else rsv_b_ref_fasta
+    File ref_gff = if organism == "RSV A" then rsv_a_ref_gff else rsv_b_ref_gff
     String out_dir_path = sub(out_dir, "/$", "") # remove trailing slash
 
     call version_capture_tasks.workflow_version_capture {

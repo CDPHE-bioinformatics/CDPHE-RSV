@@ -6,10 +6,10 @@
     "RSV_illumina_pe_assembly.out_dir": "terra_outputs",
     "RSV_illumina_pe_assembly.organism": "${this.organism}",
     "RSV_illumina_pe_assembly.rsv_a_primer_bed": "${workspace.rsv_a_primer}",
-    "RSV_illumina_pe_assembly.rsv_a_genome": "${workspace.rsv_a_genome}",
-    "RSV_illumina_pe_assembly.rsv_a_gff": "${workspace.rsv_a_gff}",
+    "RSV_illumina_pe_assembly.rsv_a_ref_fasta": "${workspace.rsv_a_ref_fasta}",
+    "RSV_illumina_pe_assembly.rsv_a_ref_gff": "${workspace.rsv_a_ref_gff}",
     "RSV_illumina_pe_assembly.rsv_b_primer_bed": "${workspace.rsv_b_primer}",
-    "RSV_illumina_pe_assembly.rsv_b_genome": "${workspace.rsv_b_genome}",
-    "RSV_illumina_pe_assembly.rsv_b_gff": "${workspace.rsv_b_gff}",
+    "RSV_illumina_pe_assembly.rsv_b_ref_fasta": "${workspace.rsv_b_ref_fasta}",
+    "RSV_illumina_pe_assembly.rsv_b_ref_gff": "${workspace.rsv_b_ref_gff}",
     "RSV_illumina_pe_assembly.calc_percent_coverage_py": "${workspace.calc_percent_coverage_py}"
 }
