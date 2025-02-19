@@ -34,7 +34,7 @@ task select_assets {
 
     output {
         File primer_bed = if (subtype == "A") rsv_a_primer_bed else rsv_b_primer_bed
-        File ref_genome = if (subtype == "A") rsv_a_ref_fasta else rsv_b_ref_fasta
+        File ref_fasta = if (subtype == "A") rsv_a_ref_fasta else rsv_b_ref_fasta
         File ref_gff = if (subtype == "A") rsv_a_ref_gff else rsv_b_ref_gff
         String nextclade_organism_id = if (subtype == "A") "rsv_a" else "rsv_b"
     }

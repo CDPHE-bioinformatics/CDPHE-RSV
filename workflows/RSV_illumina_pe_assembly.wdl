@@ -62,7 +62,7 @@ workflow RSV_illumina_pe_assembly {
     call pre_assembly_tasks.align_reads_bwa as align_reads {
         input:
             sample_name = sample_name,
-            ref = select_assets.ref_genome,
+            ref = select_assets.ref_fasta,
             fastq_1 = filter_reads.cleaned_1,
             fastq_2 = filter_reads.cleaned_2
     }
@@ -77,7 +77,7 @@ workflow RSV_illumina_pe_assembly {
     call assembly_tasks.call_variants_ivar as call_variants {
         input:
             sample_name = sample_name,
-            ref = select_assets.ref_genome,
+            ref = select_assets.ref_fasta,
             gff = select_assets.ref_gff,
             bam = trim_primers.trimsort_bam
     }
@@ -85,7 +85,7 @@ workflow RSV_illumina_pe_assembly {
     call assembly_tasks.call_consensus_ivar as call_consensus {
         input:
             sample_name = sample_name,
-            ref = select_assets.ref_genome,
+            ref = select_assets.ref_fasta,
             bam = trim_primers.trimsort_bam
     }
 
@@ -106,7 +106,7 @@ workflow RSV_illumina_pe_assembly {
         input:
             sample_name = sample_name,
             fasta = rename_fasta.renamed_consensus,
-            reference_file = select_assets.ref_genome,
+            reference_file = select_assets.ref_fasta,
             calc_percent_coverage_py = calc_percent_coverage_py
     }
 
