@@ -114,7 +114,7 @@ workflow RSV_illumina_pe_assembly {
         input:
             sample_name = sample_name,
             renamed_consensus = rename_fasta.renamed_consensus,
-            subtype = get_attributes.subtype
+            organism_id = select_assets.nextclade_organism_id
     }
 
     call post_assembly_tasks.transfer_outputs as transfer_outputs {

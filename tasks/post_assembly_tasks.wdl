@@ -82,10 +82,8 @@ task call_clades_nextclade {
     input {
         String sample_name
         File renamed_consensus
-        String subtype
+        String organism_id
     }
-
-    String organism_id = if subtype == "A" then "rsv_a" else "rsv_b"
 
     command <<<
         nextclade --version | awk '/nextclade/ {print $2}' > VERSION
