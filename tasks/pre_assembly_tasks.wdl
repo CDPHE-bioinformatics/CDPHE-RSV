@@ -1,5 +1,44 @@
 version 1.0
 
+task get_attributes {
+    input {
+        String search_string
+    }
+
+    command {
+        if [[ "${search_string}" =~ "RSV[-_]?A" ]]; then
+            echo "A" > SUBTYPE
+        elif [[ "${search_string}" =~ "RSV[-_]?B" ]]; then
+            echo "B" > SUBTYPE
+        else
+            echo "Unknown subtype"
+            exit 1
+        fi
+    }
+
+    output {
+        String subtype = read_string("SUBTYPE")
+    }
+}
+
+task select_assets {
+    input {
+        String subtype
+        File rsv_a_primer_bed
+        File rsv_a_ref_fasta
+        File rsv_a_ref_gff
+        File rsv_b_primer_bed
+        File rsv_b_ref_fasta
+        File rsv_b_ref_gff
+    }
+
+    output {
+        File primer_bed = if (subtype == "A") rsv_a_primer_bed else rsv_b_primer_bed
+        File ref_genome = if (subtype == "A") rsv_a_ref_fasta else rsv_b_ref_fasta
+        File ref_gff = if (subtype == "A") rsv_a_ref_gff else rsv_b_ref_gff
+    }
+}
+
 task filter_reads_seqyclean {
     input {
         File contam
