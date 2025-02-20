@@ -1,5 +1,63 @@
 version 1.0
 
+task get_attributes {
+    input {
+        String search_string
+    }
+
+    command {
+        if [[ "${search_string}" =~ RSV[-_]?A ]]; then
+            echo "A" > SUBTYPE
+        elif [[ "${search_string}" =~ RSV[-_]?B ]]; then
+            echo "B" > SUBTYPE
+        else
+            echo "Unknown subtype"
+            exit 1
+        fi
+    }
+
+    output {
+        String subtype = read_string("SUBTYPE")
+    }
+
+    runtime {
+        cpu: 1
+        memory: "1G"
+        disks: "local-disk 1 HDD"
+        docker: "ubuntu:focal"
+    }
+}
+
+task select_assets {
+    input {
+        String subtype
+        File rsv_a_primer_bed
+        File rsv_a_ref_fasta
+        File rsv_a_ref_gff
+        File rsv_b_primer_bed
+        File rsv_b_ref_fasta
+        File rsv_b_ref_gff
+    }
+
+    command {
+        echo "Selected assets for subtype ${subtype}"
+    }
+
+    output {
+        File primer_bed = if subtype == "A" then rsv_a_primer_bed else rsv_b_primer_bed
+        File ref_fasta = if subtype == "A" then rsv_a_ref_fasta else rsv_b_ref_fasta
+        File ref_gff = if subtype == "A" then rsv_a_ref_gff else rsv_b_ref_gff
+        String nextclade_organism_id = if subtype == "A" then "rsv_a" else "rsv_b"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "1G"
+        disks: "local-disk 1 HDD"
+        docker: "ubuntu:focal"
+    }
+}
+
 task filter_reads_seqyclean {
     input {
         File contam
@@ -36,7 +94,7 @@ task assess_quality_fastqc {
     String fastq2_name = basename(basename(basename(fastq_2, ".gz"), ".fastq"), ".fq")
 
     command {
-        fastqc --outdir $PWD ${fastq_1} ${fastq_2}
+        fastqc --outdir "$PWD" ${fastq_1} ${fastq_2}
     }
 
     output {

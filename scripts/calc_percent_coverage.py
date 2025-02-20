@@ -56,8 +56,8 @@ def calculate_percent_coverage(sample_name, fasta_file, reference_file):
         num_records = num_records + 1
 
     # calculate the percent coverage
-    ref_genome = SeqIO.read(reference_file, "fasta")
-    ref_genome_length = len(ref_genome.seq)
+    ref_fasta = SeqIO.read(reference_file, "fasta")
+    ref_fasta_length = len(ref_fasta.seq)
 
     Ns = 0
     coverage = 0.0
@@ -67,14 +67,14 @@ def calculate_percent_coverage(sample_name, fasta_file, reference_file):
         record = SeqIO.read(fasta_file, "fasta")
         aligned_bases = len(record.seq)
         if aligned_bases == 0:
-            Ns = ref_genome_length
+            Ns = ref_fasta_length
             num_non_ambiguous_bases = 0
             coverage = 0
         else:
             uncorrected_Ns = record.seq.count("N")
-            Ns = (ref_genome_length - aligned_bases) + uncorrected_Ns
+            Ns = (ref_fasta_length - aligned_bases) + uncorrected_Ns
             num_non_ambiguous_bases = aligned_bases - uncorrected_Ns
-            coverage = round((1 - (Ns / ref_genome_length)) * 100, 2)
+            coverage = round((1 - (Ns / ref_fasta_length)) * 100, 2)
     else:
         aligned_bases = np.NaN  # type: ignore
         Ns = np.NaN  # type: ignore
