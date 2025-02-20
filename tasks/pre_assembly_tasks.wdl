@@ -19,6 +19,13 @@ task get_attributes {
     output {
         String subtype = read_string("SUBTYPE")
     }
+
+    runtime {
+        cpu: 1
+        memory: "1G"
+        disks: "local-disk 1 HDD"
+        docker: "ubuntu:focal"
+    }
 }
 
 task select_assets {
@@ -37,6 +44,13 @@ task select_assets {
         File ref_fasta = if (subtype == "A") rsv_a_ref_fasta else rsv_b_ref_fasta
         File ref_gff = if (subtype == "A") rsv_a_ref_gff else rsv_b_ref_gff
         String nextclade_organism_id = if (subtype == "A") "rsv_a" else "rsv_b"
+    }
+
+    runtime {
+        cpu: 1
+        memory: "1G"
+        disks: "local-disk 1 HDD"
+        docker: "ubuntu:focal"
     }
 }
 
