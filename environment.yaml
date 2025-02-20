@@ -8,4 +8,5 @@ dependencies:
   - python=3.11.9
   - pip=24.0
   - pip:
+    - biopython==1.85
     - pandas==2.1.3
