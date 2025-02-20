@@ -22,6 +22,7 @@ workflow RSV_illumina_pe_assembly {
         File rsv_b_ref_gff
 
         File calc_percent_coverage_py
+        File version_capture_py
     }
 
     File primer_bed = if organism == "RSV A" then rsv_a_primer_bed else rsv_b_primer_bed
