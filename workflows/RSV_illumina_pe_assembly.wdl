@@ -8,6 +8,7 @@ import "../tasks/version_capture_tasks.wdl"
 workflow RSV_illumina_pe_assembly {
     input {
         String sample_name
+        String primer_set
         File fastq_1
         File fastq_2
         File contam_fasta
@@ -31,7 +32,7 @@ workflow RSV_illumina_pe_assembly {
 
     call pre_assembly_tasks.get_attributes as get_attributes {
         input:
-            search_string = sample_name
+            search_string = primer_set
     }
 
     call pre_assembly_tasks.select_assets as select_assets {
