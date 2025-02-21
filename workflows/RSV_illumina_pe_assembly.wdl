@@ -7,6 +7,7 @@ import "../tasks/version_capture_tasks.wdl"
 
 workflow RSV_illumina_pe_assembly {
     input {
+        String project_name
         String sample_name
         String primer_set
         File fastq_1
@@ -22,13 +23,10 @@ workflow RSV_illumina_pe_assembly {
         File rsv_b_ref_gff
 
         File calc_percent_coverage_py
+        File version_capture_py
     }
 
     String out_dir_path = sub(out_dir, "/$", "") # remove trailing slash
-
-    call version_capture_tasks.workflow_version_capture {
-        input:
-    }
 
     call pre_assembly_tasks.get_attributes as get_attributes {
         input:
@@ -118,6 +116,31 @@ workflow RSV_illumina_pe_assembly {
             organism_id = select_assets.nextclade_organism_id
     }
 
+    call version_capture_tasks.workflow_version_capture {
+        input:
+    }
+
+    Array[VersionInfo] version_array = [
+        filter_reads.seqyclean_version_info,
+        assess_quality.fastqc_version_info,
+        align_reads.bwa_version_info,
+        align_reads.samtools_version_info,
+        call_consensus.ivar_version_info,
+        call_consensus.samtools_version_info,
+        calc_bam_stats.samtools_version_info,
+        call_clades.nextclade_version_info
+    ]
+
+    call version_capture_tasks.task_version_capture as task_version_capture {
+        input:
+            version_array = version_array,
+            workflow_name = "RSV_illumina_pe_assembly",
+            workflow_version_path = workflow_version_capture.workflow_version_path,
+            project_name = project_name,
+            analysis_date = workflow_version_capture.analysis_date,
+            version_capture_py = version_capture_py
+    }
+
     call post_assembly_tasks.transfer_outputs as transfer_outputs {
         input:
             out_dir = "~{out_dir_path}/~{workflow_version_capture.workflow_version_path}",
@@ -136,7 +159,8 @@ workflow RSV_illumina_pe_assembly {
             stats_out = calc_bam_stats.stats_out,
             covhist_out = calc_bam_stats.covhist_out,
             cov_out = calc_bam_stats.cov_out,
-            renamed_consensus = rename_fasta.renamed_consensus
+            renamed_consensus = rename_fasta.renamed_consensus,
+            version_capture_file = task_version_capture.version_capture_file
     }
 
     output {
@@ -176,6 +200,7 @@ workflow RSV_illumina_pe_assembly {
         File nextclade_csv = call_clades.nextclade_csv
         File nextclade_json = call_clades.nextclade_json
 
+        File version_capture_file = task_version_capture.version_capture_file
         String transfer_date_assembly = transfer_outputs.transfer_date
     }
 }
