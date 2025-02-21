@@ -8,12 +8,12 @@ import "../tasks/version_capture_tasks.wdl"
 workflow RSV_illumina_pe_assembly {
     input {
         String sample_name
+        String primer_set
         File fastq_1
         File fastq_2
         File contam_fasta
         String out_dir
 
-        String organism # for subtype
         File rsv_a_primer_bed
         File rsv_a_ref_fasta
         File rsv_a_ref_gff
@@ -24,13 +24,26 @@ workflow RSV_illumina_pe_assembly {
         File calc_percent_coverage_py
     }
 
-    File primer_bed = if organism == "RSV A" then rsv_a_primer_bed else rsv_b_primer_bed
-    File ref_genome = if organism == "RSV A" then rsv_a_ref_fasta else rsv_b_ref_fasta
-    File ref_gff = if organism == "RSV A" then rsv_a_ref_gff else rsv_b_ref_gff
     String out_dir_path = sub(out_dir, "/$", "") # remove trailing slash
 
     call version_capture_tasks.workflow_version_capture {
         input:
+    }
+
+    call pre_assembly_tasks.get_attributes as get_attributes {
+        input:
+            search_string = primer_set
+    }
+
+    call pre_assembly_tasks.select_assets as select_assets {
+        input:
+            subtype = get_attributes.subtype,
+            rsv_a_primer_bed = rsv_a_primer_bed,
+            rsv_a_ref_fasta = rsv_a_ref_fasta,
+            rsv_a_ref_gff = rsv_a_ref_gff,
+            rsv_b_primer_bed = rsv_b_primer_bed,
+            rsv_b_ref_fasta = rsv_b_ref_fasta,
+            rsv_b_ref_gff = rsv_b_ref_gff
     }
 
     call pre_assembly_tasks.filter_reads_seqyclean as filter_reads {
@@ -50,7 +63,7 @@ workflow RSV_illumina_pe_assembly {
     call pre_assembly_tasks.align_reads_bwa as align_reads {
         input:
             sample_name = sample_name,
-            ref = ref_genome,
+            ref = select_assets.ref_fasta,
             fastq_1 = filter_reads.cleaned_1,
             fastq_2 = filter_reads.cleaned_2
     }
@@ -58,22 +71,22 @@ workflow RSV_illumina_pe_assembly {
     call assembly_tasks.trim_primers_ivar as trim_primers {
         input:
             sample_name = sample_name,
-            primers = primer_bed,
+            primers = select_assets.primer_bed,
             bam = align_reads.out_bam
     }
 
     call assembly_tasks.call_variants_ivar as call_variants {
         input:
             sample_name = sample_name,
-            ref = ref_genome,
-            gff = ref_gff,
+            ref = select_assets.ref_fasta,
+            gff = select_assets.ref_gff,
             bam = trim_primers.trimsort_bam
     }
 
     call assembly_tasks.call_consensus_ivar as call_consensus {
         input:
             sample_name = sample_name,
-            ref = ref_genome,
+            ref = select_assets.ref_fasta,
             bam = trim_primers.trimsort_bam
     }
 
@@ -94,7 +107,7 @@ workflow RSV_illumina_pe_assembly {
         input:
             sample_name = sample_name,
             fasta = rename_fasta.renamed_consensus,
-            reference_file = ref_genome,
+            reference_file = select_assets.ref_fasta,
             calc_percent_coverage_py = calc_percent_coverage_py
     }
 
@@ -102,7 +115,7 @@ workflow RSV_illumina_pe_assembly {
         input:
             sample_name = sample_name,
             renamed_consensus = rename_fasta.renamed_consensus,
-            organism = organism
+            organism_id = select_assets.nextclade_organism_id
     }
 
     call post_assembly_tasks.transfer_outputs as transfer_outputs {
