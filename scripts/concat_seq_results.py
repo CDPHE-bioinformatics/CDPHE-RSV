@@ -53,7 +53,6 @@ def parse_args(args: list[str]) -> argparse.Namespace:
         "--nextclade_csv_files", help="txt file with list of nextclade csv file paths"
     )
     parser.add_argument("--assembler_version")
-    parser.add_argument("--nextclade_version")
     parser.add_argument("--project_name")
 
     return parser.parse_args(args)
@@ -237,41 +236,6 @@ def concat_results(
     return j
 
 
-def make_wgs_horizon_output(
-    results_df: pd.DataFrame, project_name: str, args: argparse.Namespace
-) -> None:
-    """Make wgs horizon report."""
-    results_df["platform"] = args.platform
-    results_df["workflow"] = args.workflow_name
-    results_df["nextclade_version"] = args.nextclade_version
-    results_df["workflow_version"] = args.workflow_version
-    results_df["WGS_type"] = results_df["organism"].str.split().str[1]
-    results_df["WGS_clade_nextclade"] = results_df["clade"]
-    results_df["WGS_Gclade_nextclade"] = results_df["G_clade"]
-    results_df["analysis_date"] = str(date.today())
-
-    col_order = [
-        "hsn",
-        "project_name",
-        "platform",
-        "run_date",
-        "analysis_date",
-        "workflow",
-        "workflow_version",
-        "WGS_type",
-        "WGS_clade_nextclade",
-        "WGS_Gclade_nextclade",
-        "nextclade_version",
-        "percent_coverage",
-        "mean_depth",
-    ]
-
-    results_df = results_df[col_order]
-
-    outfile = "%s_wgs_horizon_report.csv" % project_name
-    results_df.to_csv(outfile, index=False)
-
-
 def main(args: argparse.Namespace) -> None:
     """Main function."""
     setup_logging(log_level=args.log_level)
@@ -305,7 +269,7 @@ def main(args: argparse.Namespace) -> None:
     nextclade_df = concat_nextclade_csv(nextclade_csv_file_list=nextclade_csv_file_list)
 
     # create results file
-    results_df = concat_results(
+    concat_results(
         sample_name_list=sample_name_list,
         workbook_path=workbook_path,
         project_name=project_name,
@@ -314,9 +278,6 @@ def main(args: argparse.Namespace) -> None:
         percent_cvg_df=percent_cvg_df,
         nextclade_df=nextclade_df,
     )
-
-    # create wgs horizon output
-    make_wgs_horizon_output(results_df=results_df, project_name=project_name, args=args)
 
     log.info("Sequencing results summary end.")
 
