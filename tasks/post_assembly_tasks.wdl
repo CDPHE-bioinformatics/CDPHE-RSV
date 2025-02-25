@@ -109,12 +109,10 @@ task call_clades_nextclade {
     >>>
 
     output {
-        String nextclade_version = read_string("VERSION")
-
         VersionInfo nextclade_version_info = object {
             software: "nextclade",
             docker: docker,
-            version: nextclade_version
+            version: read_string("VERSION")
         }
         
         File nextclade_json = "~{sample_name}_nextclade.json"

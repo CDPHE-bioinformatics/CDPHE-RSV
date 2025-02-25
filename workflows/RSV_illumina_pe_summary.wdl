@@ -9,7 +9,6 @@ workflow RSV_illumina_pe_summary {
         Array[File?] renamed_consensus
         Array[File?] cov_out # cov as in coverage
         Array[File?] percent_cvg_csv
-        Array[String?] nextclade_version_array
         Array[File?] nextclade_csv
         Array[String] out_dir_array
         Array[String] project_name_array
@@ -22,7 +21,6 @@ workflow RSV_illumina_pe_summary {
     String project_name = project_name_array[0]
     File workbook_path = workbook_path_array[0]
     String assembler_version = select_all(assembler_version_array)[0]
-    String nextclade_version = select_all(nextclade_version_array)[0]
     String out_dir_path = sub(out_dir_array[0], "/$", "") # remove trailing slash
 
     call version_capture_tasks.workflow_version_capture {
@@ -39,7 +37,6 @@ workflow RSV_illumina_pe_summary {
         workflow_version = workflow_version_capture.workflow_version,
         sample_name = sample_name,
         concat_seq_results_py = concat_seq_results_py,
-        nextclade_version = nextclade_version,
         nextclade_csv = select_all(nextclade_csv),
         cov_out = select_all(cov_out),
         percent_cvg_csv = select_all(percent_cvg_csv),

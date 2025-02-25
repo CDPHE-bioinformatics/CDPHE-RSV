@@ -3,7 +3,6 @@
     "RSV_illumina_pe_summary.renamed_consensus": "${this.renamed_consensus}",
     "RSV_illumina_pe_summary.cov_out": "${this.cov_out}",
     "RSV_illumina_pe_summary.percent_cvg_csv": "${this.percent_cvg_csv}",
-    "RSV_illumina_pe_summary.nextclade_version_array": "${this.nextclade_version_array}",
     "RSV_illumina_pe_summary.nextclade_csv": "${this.nextclade_clades_csv}",
     "RSV_illumina_pe_summary.out_dir_array": "${this.out_dir_array}",
     "RSV_illumina_pe_summary.project_name_array": "${this.project_name_array}",
