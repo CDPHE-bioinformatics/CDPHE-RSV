@@ -53,6 +53,7 @@ workflow RSV_illumina_pe_summary {
             out_dir = "~{out_dir_path}/~{workflow_version_capture.workflow_version_path}",
             cat_fastas = concatenate_consensus.cat_fastas,
             sequencing_results_csv = summarize_results.sequencing_results_csv,
+            wgs_horizon_report_csv = summarize_results.wgs_horizon_report_csv
     }
 
     output {
@@ -61,5 +62,6 @@ workflow RSV_illumina_pe_summary {
         File cat_fastas = concatenate_consensus.cat_fastas
 
         File sequencing_results_csv = summarize_results.sequencing_results_csv
+        File wgs_horizon_report_csv = summarize_results.wgs_horizon_report_csv
     }
 }
