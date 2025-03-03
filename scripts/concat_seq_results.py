@@ -245,7 +245,7 @@ def make_wgs_horizon_output(
     results_df["workflow"] = args.workflow_name
     results_df["nextclade_version"] = args.nextclade_version
     results_df["workflow_version"] = args.workflow_version
-    results_df["WGS_type"] = results_df["organism"].str.split().str[1]
+    results_df["WGS_type"] = results_df["primer_set"].str.extract(r"RSV[-_]?([AB])")
     results_df["WGS_clade_nextclade"] = results_df["clade"]
     results_df["WGS_Gclade_nextclade"] = results_df["G_clade"]
     results_df["analysis_date"] = str(date.today())

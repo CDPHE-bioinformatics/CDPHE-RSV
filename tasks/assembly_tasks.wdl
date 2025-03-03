@@ -1,11 +1,15 @@
 version 1.0
 
+import "version_capture_tasks.wdl" as version_capture
+
 task trim_primers_ivar {
     input {
         File primers
         File bam
         String sample_name
     }
+
+    String docker = "andersenlabapps/ivar:1.3.1"
 
     command {
         ivar trim -e -i ${bam} -b ${primers} -p ${sample_name}_trim.bam
@@ -23,7 +27,7 @@ task trim_primers_ivar {
         cpu: 1
         memory: "1G"
         disks: "local-disk 1 HDD"
-        docker: "andersenlabapps/ivar:1.3.1"
+        docker: docker
     }
 }
 
@@ -34,6 +38,8 @@ task call_variants_ivar {
         File gff
         File bam
     }
+
+    String docker = "andersenlabapps/ivar:1.3.1"
 
     command {
         samtools faidx ${ref}
@@ -49,7 +55,7 @@ task call_variants_ivar {
         cpu: 1
         memory: "1G"
         disks: "local-disk 1 HDD"
-        docker: "andersenlabapps/ivar:1.3.1"
+        docker: docker
     }
 }
 
@@ -60,13 +66,29 @@ task call_consensus_ivar {
         File bam
     }
 
-    command {
-        samtools faidx ${ref}
-        samtools mpileup -A -aa -d 600000 -B -Q 20 -q 20 -f ${ref} ${bam} | \
-        ivar consensus -p ${sample_name}_consensus -q 20 -t 0.6 -m 10
-    }
+    String docker = "andersenlabapps/ivar:1.3.1"
+
+    command <<<
+        ivar version | awk '/version/ {print $3}' | tee VERSION_IVAR
+        samtools --version | awk '/samtools/ {print $2}' | tee VERSION_SAMTOOLS
+        samtools faidx ~{ref}
+        samtools mpileup -A -aa -d 600000 -B -Q 20 -q 20 -f ~{ref} ~{bam} | \
+        ivar consensus -p ~{sample_name}_consensus -q 20 -t 0.6 -m 10
+    >>>
 
     output {
+        VersionInfo ivar_version_info = object {
+            software: "ivar",
+            docker: docker,
+            version: read_string("VERSION_IVAR")
+        }
+
+        VersionInfo samtools_version_info = object {
+            software: "samtools",
+            docker: docker,
+            version: read_string("VERSION_SAMTOOLS")
+        }
+
         File consensus_out = "${sample_name}_consensus.fa"
     }
 
@@ -74,6 +96,6 @@ task call_consensus_ivar {
         cpu: 1
         memory: "1G"
         disks: "local-disk 1 HDD"
-        docker: "andersenlabapps/ivar:1.3.1"
+        docker: docker
     }
 }

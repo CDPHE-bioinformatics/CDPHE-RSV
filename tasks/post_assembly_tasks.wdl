@@ -1,5 +1,7 @@
 version 1.0
 
+import "version_capture_tasks.wdl" as version_capture
+
 task calc_bam_stats_samtools {
     input {
         String sample_name
@@ -7,7 +9,10 @@ task calc_bam_stats_samtools {
         File bai
     }
 
+    String docker = "staphb/samtools:1.16"
+
     command <<<
+        samtools --version | awk '/samtools/ {print $2}' | tee VERSION
         samtools flagstat ~{bam} > ~{sample_name}_flagstat.txt
         samtools stats ~{bam} > ~{sample_name}_stats.txt
         samtools coverage -m -o ~{sample_name}_coverage_hist.txt ~{bam}
@@ -15,6 +20,12 @@ task calc_bam_stats_samtools {
     >>>
 
     output {
+        VersionInfo samtools_version_info = object {
+            software: "samtools",
+            docker: docker,
+            version: read_string("VERSION")
+        }
+
         File flagstat_out = "${sample_name}_flagstat.txt"
         File stats_out = "${sample_name}_stats.txt"
         File covhist_out = "${sample_name}_coverage_hist.txt"
@@ -25,7 +36,7 @@ task calc_bam_stats_samtools {
         cpu: 1
         memory: "1G"
         disks: "local-disk 1 HDD"
-        docker: "staphb/samtools:1.16"
+        docker: docker
     }
 }
 
@@ -82,10 +93,10 @@ task call_clades_nextclade {
     input {
         String sample_name
         File renamed_consensus
-        String organism
+        String organism_id
     }
 
-    String organism_id = if organism == "RSV A" then "rsv_a" else "rsv_b"
+    String docker = "nextstrain/nextclade:3.8.2"
 
     command <<<
         nextclade --version | awk '/nextclade/ {print $2}' > VERSION
@@ -99,6 +110,13 @@ task call_clades_nextclade {
 
     output {
         String nextclade_version = read_string("VERSION")
+
+        VersionInfo nextclade_version_info = object {
+            software: "nextclade",
+            docker: docker,
+            version: nextclade_version
+        }
+        
         File nextclade_json = "~{sample_name}_nextclade.json"
         File nextclade_csv = "~{sample_name}_nextclade.csv"
     }
@@ -107,7 +125,7 @@ task call_clades_nextclade {
         cpu: 4
         memory: "8G"
         disks: "local-disk 10 HDD"
-        docker: "nextstrain/nextclade:3.8.2"
+        docker: docker
     }
 }
 
@@ -141,6 +159,7 @@ task transfer_outputs {
         File cov_out
 
         File renamed_consensus
+        File version_capture_file
     }
 
     String out_dir_path = sub(out_dir, "/$", "") # remove trailing slash
@@ -168,6 +187,7 @@ task transfer_outputs {
         gsutil -m cp ~{cov_out} ~{out_dir_path}/bam_stats/
                        
         gsutil -m cp ~{renamed_consensus} ~{out_dir_path}/assemblies/
+        gsutil -m cp ~{version_capture_file} ~{out_dir_path}/summary_results/
                        
         TRANSFER_DATE=$(date)
         echo "$TRANSFER_DATE" | tee TRANSFER_DATE
