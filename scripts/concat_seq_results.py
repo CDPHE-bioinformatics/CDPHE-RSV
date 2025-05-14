@@ -180,6 +180,10 @@ def concat_results(
     nextclade_df["sample_name"] = nextclade_df["seqName"].apply(
         get_sample_name_from_fasta_header
     )
+
+    # g_clade is being phased out and sometimes is not present in the nextclade output
+    if "G_clade" not in nextclade_df.columns:
+        nextclade_df["G_clade"] = None
     nextclade_df = nextclade_df[["sample_name", "clade", "G_clade"]]
     nextclade_df = nextclade_df.set_index("sample_name")
 

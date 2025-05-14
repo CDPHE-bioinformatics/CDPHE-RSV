@@ -96,7 +96,7 @@ task call_clades_nextclade {
         String organism_id
     }
 
-    String docker = "nextstrain/nextclade:3.8.2"
+    String docker = "nextstrain/nextclade:3.10.2"
 
     command <<<
         nextclade --version | awk '/nextclade/ {print $2}' > VERSION

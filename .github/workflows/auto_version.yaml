@@ -24,6 +24,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
         DRY_RUN: true
+        DEFAULT_BUMP: patch
     - name: update files with bumped version from tag-action dry run
       run: |
         NEXT_VERSION=${{ steps.tag_action_dry_run.outputs.new_tag }}
@@ -37,8 +38,12 @@ jobs:
         git add tasks/version_capture_tasks.wdl
         git commit -m "Auto bump version"
         git push origin main
+        git checkout develop
+        git merge main
+        git push --set-upstream origin develop
     - name: bump version with tag-action
       uses: anothrNick/github-tag-action@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
+        DEFAULT_BUMP: patch

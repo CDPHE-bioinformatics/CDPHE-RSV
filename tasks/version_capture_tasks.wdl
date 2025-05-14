@@ -22,7 +22,7 @@ task workflow_version_capture {
 
     command <<<
         date +"%Y-%m-%d" > TODAY
-        echo "v0.3.0" > WORKFLOW_VERSION
+        echo "v0.4.2" > WORKFLOW_VERSION
     >>>
 
     output {
