@@ -196,7 +196,6 @@ workflow RSV_illumina_pe_assembly {
 
         File percent_cvg_csv = calc_percent_coverage.percent_cvg_csv
 
-        String nextclade_version = call_clades.nextclade_version
         File nextclade_csv = call_clades.nextclade_csv
         File nextclade_json = call_clades.nextclade_json
 
