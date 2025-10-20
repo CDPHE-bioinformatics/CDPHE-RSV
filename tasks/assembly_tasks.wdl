@@ -25,8 +25,8 @@ task trim_primers_ivar {
 
     runtime {
         cpu: 2
-        memory: "2G"
-        disks: "local-disk 1 HDD"
+        memory: "8G"
+        disks: "local-disk 100 SDD"
         docker: docker
     }
 }
