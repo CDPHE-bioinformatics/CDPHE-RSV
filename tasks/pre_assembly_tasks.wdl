@@ -88,8 +88,8 @@ task filter_reads_seqyclean {
     }
 
     runtime {
-        cpu: 1
-        memory: "1G"
+        cpu: 2
+        memory: "2G"
         disks: "local-disk 1 HDD"
         docker: docker
     }
