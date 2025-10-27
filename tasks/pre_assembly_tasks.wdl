@@ -126,7 +126,7 @@ task assess_quality_fastqc {
     runtime {
         cpu: 2
         memory: "8G"
-        disks: "local-disk 100GB SSD"
+        disks: "local-disk 100 SSD"
         docker: docker
     }
 }
