@@ -48,7 +48,6 @@ task summarize_results {
 
     output {
         File sequencing_results_csv = "~{project_name}_sequencing_results.csv"
-        File wgs_horizon_report_csv = "~{project_name}_wgs_horizon_report.csv"
     }
 
     runtime {
@@ -64,7 +63,6 @@ task transfer_outputs {
         String out_dir
         File cat_fastas
         File sequencing_results_csv
-        File wgs_horizon_report_csv
     }
 
     String outdirpath = sub(out_dir, "/$", "")
@@ -72,7 +70,6 @@ task transfer_outputs {
     command <<<
         gsutil -m cp ~{cat_fastas} ~{outdirpath}/multifasta/
         gsutil -m cp ~{sequencing_results_csv} ~{outdirpath}/summary_results/
-        gsutil -m cp ~{wgs_horizon_report_csv} ~{outdirpath}/summary_results/
     >>>
 
     runtime {
