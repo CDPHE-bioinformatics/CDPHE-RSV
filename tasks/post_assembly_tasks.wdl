@@ -157,6 +157,7 @@ task transfer_outputs {
         File stats_out
         File covhist_out
         File cov_out
+        File stats_depth_out
 
         File renamed_consensus
         File version_capture_file
@@ -185,6 +186,7 @@ task transfer_outputs {
         gsutil -m cp ~{stats_out} ~{out_dir_path}/bam_stats/
         gsutil -m cp ~{covhist_out} ~{out_dir_path}/bam_stats/
         gsutil -m cp ~{cov_out} ~{out_dir_path}/bam_stats/
+        gsutil -m cp ~{stats_depth_out} ~{out_dir_path}/bam_stats/
                        
         gsutil -m cp ~{renamed_consensus} ~{out_dir_path}/assemblies/
         gsutil -m cp ~{version_capture_file} ~{out_dir_path}/summary_results/
