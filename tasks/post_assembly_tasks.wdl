@@ -17,7 +17,7 @@ task calc_bam_stats_samtools {
         samtools stats ~{bam} > ~{sample_name}_stats.txt
         samtools coverage -m -o ~{sample_name}_coverage_hist.txt ~{bam}
         samtools coverage -o ~{sample_name}_coverage.txt ~{bam}
-        samtools depth -o {sample_name}_depth.txt -a -J {bam}
+        samtools depth -o ~{sample_name}_depth.txt -a -J ~{bam}
     >>>
 
     output {
