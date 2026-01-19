@@ -191,6 +191,7 @@ workflow RSV_illumina_pe_assembly {
         File stats_out = calc_bam_stats.stats_out
         File covhist_out = calc_bam_stats.covhist_out
         File cov_out = calc_bam_stats.cov_out
+        File depth_out = calc_bam_stats.depth_out
 
         File renamed_consensus = rename_fasta.renamed_consensus
 
