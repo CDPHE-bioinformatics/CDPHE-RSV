@@ -33,9 +33,9 @@ task calc_bam_stats_samtools {
     }
 
     runtime {
-        cpu: 1
-        memory: "1G"
-        disks: "local-disk 1 HDD"
+        cpu: 2
+        memory: "8G"
+        disks: "local-disk 100 SSD"
         docker: docker
     }
 }
@@ -197,8 +197,8 @@ task transfer_outputs {
 
     runtime {
         cpu: 2
-        memory: "2G"
-        disks: "local-disk 4 HDD"
+        memory: "8G"
+        disks: "local-disk 100 SSD"
         docker: "theiagen/utility:1.0"
     }
 }

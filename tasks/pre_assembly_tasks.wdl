@@ -171,8 +171,8 @@ task align_reads_bwa {
 
     runtime {
         cpu: 2
-        memory: "2G"
-        disks: "local-disk 2 HDD"
+        memory: "8G"
+        disks: "local-disk 100 SSD"
         docker: docker
     }
 }
