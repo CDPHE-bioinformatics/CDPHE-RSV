@@ -81,6 +81,9 @@ def create_list_from_write_lines_input(write_lines_input: str) -> list[str]:
 def concat_cov_out(cov_out_file_list: list[str]) -> pd.DataFrame:
     """Concatenate covergate output files."""
     # initiate dataframe for concatenation
+    print('------------------BEGIN concat_cov_out -------------')
+    print('concatenating cov out files')
+    print(f'length of cov out files: {len(cov_out_file_list)}')
     df = pd.DataFrame()
     sample_name_list = []
     samtools_mapped_reads_list = []
@@ -116,29 +119,71 @@ def concat_cov_out(cov_out_file_list: list[str]) -> pd.DataFrame:
     df["mean_base_quality"] = samtools_baseq_list
     df["mean_map_quality"] = samtools_mapq_list
 
+    print(f'cov out concatenated size: {df.shape}')
+    print()
+    print(df.head)
+    print()
+    print(f'# row with NAs: {df[df.isna().any(axis=1)].shape}')
+    print(df[df.isna().any(axis=1)])
+    print('')
+    print('---------------END cov out ---------------')   
+    print('')
+
     return df
 
 
 def concat_percent_cvg(percent_cvg_file_list: list[str]) -> pd.DataFrame:
     """Concatenate percent coverage files."""
+    print('------------------BEGIN concat_percent_cvg-------------')
+    print('concatenating percent cvg files files')
+    print(f'length of cov out files: {len(percent_cvg_file_list)}')
+
     df_list = []
     for file in percent_cvg_file_list:
         d = pd.read_csv(file, dtype={"sample_name": object})
         df_list.append(d)
 
+    print(f'number of dataframes to concat in list: {len(df_list)}')
+
     df = pd.concat(df_list)
+
+    print(f'percent cvg concatenated size: {df.shape}')
+    print()
+    print(df.head())
+    print()
+    print(f'# row with NAs: {df[df.isna().any(axis=1)].shape}')
+    print(df[df.isna().any(axis=1)])
+    print('')
+    print('---------------END perecent coverage out---------------')   
+    print('')
 
     return df
 
 
 def concat_nextclade_csv(nextclade_csv_file_list: list[str]) -> pd.DataFrame:
     """Concatenate nextclade csv files."""
+    print('------------------BEGIN concat nextclade-------------')
+    print('concatenating nextclade files')
+    print(f'length of cov out files: {len(nextclade_csv_file_list)}')
     df_list = []
     for file in nextclade_csv_file_list:
         d = pd.read_csv(file, sep=";")
         df_list.append(d)
-
+    
+    print(f'number of dataframes to concat in list: {len(df_list)}')
     df = pd.concat(df_list)
+
+
+    print(f'nextclade concatenated size: {df.shape}')
+    print()
+    print(df.head())
+    print()
+    print(f'# row with NAs: {df[df.isna().any(axis=1)].shape}')
+    print(df[df.isna().any(axis=1)])
+    print('')
+    print('---------------END nextclade ---------------')   
+    print('')
+
     return df
 
 
@@ -152,6 +197,7 @@ def concat_results(
     nextclade_df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Concatenate results."""
+    print('------------------BEGIN concat_results-------------')
 
     # set some functions for getting data formatted
     def get_sample_name_from_fasta_header(fasta_header: str) -> str:
@@ -162,42 +208,88 @@ def concat_results(
         return "CO-CDPHE-%s" % sample_name
 
     # create dataframe and fill with constant strings
+    print('----------------creating base df')
     df = pd.DataFrame()
     df["sample_name"] = sample_name_list
     df = df.set_index("sample_name")
     df["analysis_date"] = str(date.today())
     df["assembler_version"] = assembler_version
+    print(df.shape)
+    print(df.head())
 
     # read in workbook
+    print('')
+    print('-----------------reading in wb')
     workbook = pd.read_csv(
         workbook_path, sep="\t", dtype={"sample_name": object, "hsn": object}
     )
     workbook = workbook.set_index("sample_name")
+    print(workbook.shape)
+    print(workbook.head)
+    print('')
+
 
     # set index on the samtools_df and percent_cvg_df and variants_df to prepare for joining
+    print('----------------setting index on dfs before merging')
     cov_out_df = cov_out_df.set_index("sample_name")
     percent_cvg_df = percent_cvg_df.set_index("sample_name")
     nextclade_df["sample_name"] = nextclade_df["seqName"].apply(
         get_sample_name_from_fasta_header
     )
+    print('cov_out')
+    print(cov_out_df.shape)
+    print(cov_out_df.head())
+    print()
+    print('percent cvg')
+    print(percent_cvg_df.shape)
+    print(percent_cvg_df.head())
+    print()
+    print(nextclade_df.shape)
+    print('nextclade')
+    print()
+    
 
     # g_clade is being phased out and sometimes is not present in the nextclade output
-    if "G_clade" not in nextclade_df.columns:
-        nextclade_df["G_clade"] = None
-    nextclade_df = nextclade_df[["sample_name", "clade", "G_clade"]]
+    print('----------------filter columns in nextclade to sample name and clade')
+    nextclade_df = nextclade_df[["sample_name", "clade"]]
     nextclade_df = nextclade_df.set_index("sample_name")
+    print(nextclade_df.head())
+
 
     # join
+    print('-------------------------joinin all dfs')
     j = df.join(workbook, how="left")
+    print('first join base df and wb')
+    print(j.shape)
+    print(j.head())
+    print()
+    print('-----------------------')
     j = j.join(percent_cvg_df, how="left")
+    print('second join with percent cvg df')
+    print(j.shape)
+    print(j.head())
+    print()
+    print('--------------------')
     j = j.join(cov_out_df, how="left")
+    print('third join with cov out df')
+    print(j.shape)
+    print(j.head())
+    print()
     j = j.join(nextclade_df, how="left")
+    print('fourth join with nextclade df')
+    print(j.shape)
+    print(j.head())
+    print()
     j = j.reset_index()
 
     # add fasta header
+    print('-------------------------adding fasta header')
     j["fasta_header"] = j.apply(lambda x: create_fasta_header(x.sample_name), axis=1)
+    print(j.shape)
+    print(j.head())
 
     # add assembled column and fill in failed assembles with 0% coveage
+    print('------------------------adding assembly pass column and filling in missing percent coverage')
     j.percent_coverage = j.percent_coverage.fillna(value=0)
 
     def get_assembly_pass(percent_coverage: float) -> bool:
@@ -212,7 +304,12 @@ def concat_results(
         lambda x: get_assembly_pass(x.percent_coverage), axis=1
     )
 
+    print(j.shape)
+    print(j.head())
+    print('')
+
     # order columns
+    print('--------------------------------ordering columns')
     columns = j.columns.tolist()
     columns.sort()
     primary_columns = [
@@ -225,25 +322,33 @@ def concat_results(
         "run_name",
         "run_date",
         "percent_coverage",
-        "clade",
-        "G_clade",
+        "clade"
     ]
     for column in columns:
         if column not in primary_columns:
             primary_columns.append(column)
 
     j = j[primary_columns]
+    print(j.shape)
+    print(j.head())
+    print()
 
+    print('---------------------------writing to csv')
     outfile = "%s_sequencing_results.csv" % project_name
     j.to_csv(outfile, index=False)
+    print('----------------------END concat_results-------------')
+    print('')
 
     return j
 
 
 def main(args: argparse.Namespace) -> None:
     """Main function."""
+    print('------------------BEGIN main-------------')
     setup_logging(log_level=args.log_level)
     log.info("Sequencing results start.")
+
+    print('------------------gathering args-------------')
 
     sample_name_array = args.sample_name_array
     workbook_path = args.workbook_path
@@ -253,6 +358,7 @@ def main(args: argparse.Namespace) -> None:
     assembler_version = args.assembler_version
     project_name = args.project_name
 
+    print('------------------creating lists from inputs-------------')
     # create lists from the column table txt file input
     sample_name_list = create_list_from_write_lines_input(
         write_lines_input=sample_name_array
@@ -266,6 +372,8 @@ def main(args: argparse.Namespace) -> None:
     nextclade_csv_file_list = create_list_from_write_lines_input(
         write_lines_input=nextclade_csv_files
     )
+
+    print('------------------concatenating input files-------------')
 
     # concat cov_out files, percent_cvg files, and nextclade files
     cov_out_df = concat_cov_out(cov_out_file_list=cov_out_file_list)
@@ -284,6 +392,8 @@ def main(args: argparse.Namespace) -> None:
     )
 
     log.info("Sequencing results summary end.")
+
+    print('------------------END main-------------')
 
 
 if __name__ == "__main__":
