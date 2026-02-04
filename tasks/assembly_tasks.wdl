@@ -24,9 +24,9 @@ task trim_primers_ivar {
     }
 
     runtime {
-        cpu: 1
-        memory: "1G"
-        disks: "local-disk 1 HDD"
+        cpu: 2
+        memory: "8G"
+        disks: "local-disk 100 SSD"
         docker: docker
     }
 }
@@ -52,9 +52,9 @@ task call_variants_ivar {
     }
 
     runtime {
-        cpu: 1
-        memory: "1G"
-        disks: "local-disk 1 HDD"
+        cpu: 2
+        memory: "8G"
+        disks: "local-disk 100 SSD"
         docker: docker
     }
 }
@@ -93,9 +93,9 @@ task call_consensus_ivar {
     }
 
     runtime {
-        cpu: 1
-        memory: "1G"
-        disks: "local-disk 1 HDD"
+        cpu: 2
+        memory: "8G"
+        disks: "local-disk 100 SSD"
         docker: docker
     }
 }
