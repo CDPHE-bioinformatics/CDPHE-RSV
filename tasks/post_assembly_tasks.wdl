@@ -17,6 +17,7 @@ task calc_bam_stats_samtools {
         samtools stats ~{bam} > ~{sample_name}_stats.txt
         samtools coverage -m -o ~{sample_name}_coverage_hist.txt ~{bam}
         samtools coverage -o ~{sample_name}_coverage.txt ~{bam}
+        samtools depth -o ~{sample_name}_depth.txt -a -J ~{bam}
     >>>
 
     output {
@@ -30,6 +31,7 @@ task calc_bam_stats_samtools {
         File stats_out = "${sample_name}_stats.txt"
         File covhist_out = "${sample_name}_coverage_hist.txt"
         File cov_out = "${sample_name}_coverage.txt"
+        File depth_out = "${sample_name}_depth.txt"
     }
 
     runtime {
@@ -155,6 +157,7 @@ task transfer_outputs {
         File stats_out
         File covhist_out
         File cov_out
+        File stats_depth_out
 
         File renamed_consensus
         File version_capture_file
@@ -183,6 +186,7 @@ task transfer_outputs {
         gsutil -m cp ~{stats_out} ~{out_dir_path}/bam_stats/
         gsutil -m cp ~{covhist_out} ~{out_dir_path}/bam_stats/
         gsutil -m cp ~{cov_out} ~{out_dir_path}/bam_stats/
+        gsutil -m cp ~{stats_depth_out} ~{out_dir_path}/bam_stats/
                        
         gsutil -m cp ~{renamed_consensus} ~{out_dir_path}/assemblies/
         gsutil -m cp ~{version_capture_file} ~{out_dir_path}/summary_results/
