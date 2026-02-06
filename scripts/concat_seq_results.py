@@ -288,7 +288,7 @@ def concat_results(
     print(
         "------------------------adding assembly pass column and filling in missing percent coverage"
     )
-    j.percent_coverage = j.percent_coverage.fillna(value=0)
+    j["percent_coverage"] = j.percent_coverage.fillna(value=0)
 
     def get_assembly_pass(percent_coverage: float) -> bool:
         if percent_coverage > 0:
